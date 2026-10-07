@@ -9,6 +9,7 @@ import TasksPage from '../pages/TasksPage'
 import TeamPage from '../pages/TeamPage'
 import ActivityPage from '../pages/ActivityPage'
 import SettingsPage from '../pages/SettingsPage'
+import NotFoundPage from '../pages/NotFoundPage'
 
 function AppRoutes() {
     return (
@@ -28,6 +29,8 @@ function AppRoutes() {
                 <Route path='/team' element={<TeamPage />} />
                 <Route path='/activity' element={<ActivityPage />} />
                 <Route path='/settings' element={<SettingsPage />} />
+
+                <Route path='*' element={<NotFoundPage />} />
             </Route>
         </Routes>
     )
