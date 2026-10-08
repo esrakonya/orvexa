@@ -1,19 +1,17 @@
-import { getAllClients } from "../services/clientService"
+import useDashboardData from '../hooks/useDashboardData'
 
 function DashboardPage() {
-    const clients = getAllClients()
+  const dashboardData = useDashboardData()
 
-    return (
-        <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-                Dashboard
-            </h1>
+  return (
+    <div>
+      <h1>Dashboard Data Verification</h1>
 
-            <p className="mt-2 text-gray-600">
-                Active clients: {clients.filter((client) => client.status === 'ACTIVE').length}
-            </p>
-        </div>
-    )
+      <pre>
+        {JSON.stringify(dashboardData, null, 2)}
+      </pre>
+    </div>
+  )
 }
 
 export default DashboardPage
