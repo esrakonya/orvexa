@@ -1,4 +1,4 @@
-import type { Project } from "../../interfaces/Project";
+import type { Project, ProjectStatus } from '../../interfaces/Project'
 
 interface ProjectProgressItem {
     project: Project
@@ -7,6 +7,25 @@ interface ProjectProgressItem {
 
 interface ProjectProgressListProps {
     projects: ProjectProgressItem[]
+}
+
+function getProgressColor(status: ProjectStatus) {
+    switch (status) {
+        case 'PLANNING':
+            return 'bg-planning-500'
+
+        case 'IN_PROGRESS':
+            return 'bg-info-500'
+
+        case 'ON_HOLD':
+            return 'bg-warning-500'
+
+        case 'COMPLETED':
+            return 'bg-success-500'
+
+        default:
+            return 'bg-gray-400'
+    }
 }
 
 function ProjectProgressList({
@@ -32,14 +51,14 @@ function ProjectProgressList({
                                 {project.name}
                             </span>
 
-                            <span className="text-sm font-medium text-gray-500">
+                            <span className="shrink-0 text-sm font-medium text-gray-500">
                                 {progress}%
                             </span>
                         </div>
 
                         <div className="h-2 overflow-hidden rounded-full bg-gray-100">
                             <div
-                                className="h-full rounded-full bg-gray-900 transition-all"
+                                className={`h-full rounded-full transition-all ${getProgressColor(project.status)}`}
                                 style={{ width: `${progress}%` }}
                             />
                         </div>
