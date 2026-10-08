@@ -60,6 +60,15 @@ function useDashboardData() {
         firstTask.dueDate.localeCompare(secondTask.dueDate),
       )
       .slice(0, 5)
+      .map((task) => ({
+        task,
+        project: projects.find(
+            (project)  => project.id === task.projectId,
+        ),
+        assignee: users.find(
+            (user) => user.id === task.assigneeId
+        ),
+      }))
 
     const recentActivities = [...activities]
       .sort((firstActivity, secondActivity) =>
