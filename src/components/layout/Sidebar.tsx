@@ -27,7 +27,7 @@ function Sidebar({ isOpen, onNavigate }: SidebarProps) {
         `}
       >
         <div className="flex h-16 items-center border-b px-6">
-          <span className="text-xl font-bold tracking-tight">
+          <span className="text-xl font-bold tracking-tight text-gray-900">
             Orvexa
           </span>
         </div>
@@ -42,15 +42,33 @@ function Sidebar({ isOpen, onNavigate }: SidebarProps) {
                 to={item.path}
                 onClick={onNavigate}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  `relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-gray-100 text-gray-900'
+                      ? 'bg-primary-50 text-primary-700'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`
                 }
               >
-                <Icon className="h-5 w-5" />
-                <span>{item.label}</span>
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <span
+                        className="absolute inset-y-2 left-0 w-0.5 rounded-r-full bg-primary-600"
+                        aria-hidden="true"
+                      />
+                    )}
+
+                    <Icon
+                      className={`h-5 w-5 ${
+                        isActive
+                          ? 'text-primary-600'
+                          : 'text-gray-500'
+                      }`}
+                    />
+
+                    <span>{item.label}</span>
+                  </>
+                )}
               </NavLink>
             )
           })}
