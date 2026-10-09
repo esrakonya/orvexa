@@ -10,6 +10,13 @@ interface ProjectFormData {
   dueDate: string
 }
 
+interface FormErrors {
+    clientId?: string
+    name?: string
+    startDate?: string
+    dueDate?: string
+}
+
 interface ProjectFormProps {
   clients: {
     id: string
@@ -40,8 +47,7 @@ function ProjectForm({
       },
     )
 
-  const [validationError, setValidationError] =
-    useState<string | null>(null)
+  const [errors, setErrors] = useState<FormErrors>({})
 
   const handleChange = (
     field: keyof ProjectFormData,
@@ -52,7 +58,10 @@ function ProjectForm({
       [field]: value,
     }))
 
-    setValidationError(null)
+    setErrors((current) => ({
+        ...current,
+        [field]: undefined,
+    }))
   }
 
   const handleSubmit = (
@@ -60,30 +69,39 @@ function ProjectForm({
   ) => {
     event.preventDefault()
 
+    const nextErrors: FormErrors = {}
+
     if (!formData.clientId) {
-      setValidationError('Please select a client.')
-      return
+        nextErrors.clientId = 'Please select a client.'
+    }
+
+    if (!formData.name.trim()) {
+        nextErrors.name = 'Project name is required.'
     }
 
     if (!formData.startDate) {
-      setValidationError('Please select a start date.')
-      return
+        nextErrors.startDate = 'Please select a start date.'
     }
 
     if (!formData.dueDate) {
-      setValidationError('Please select a due date.')
-      return
+        nextErrors.dueDate = 'Please select a due date.'
+    } else if(
+        formData.startDate && formData.dueDate < formData.startDate
+    ) {
+        nextErrors.dueDate = 'Due date cannot be earlier than the start date.'
     }
 
-    if (formData.dueDate < formData.startDate) {
-      setValidationError(
-        'Due date cannot be earlier than the start date.',
-      )
-      return
+    setErrors(nextErrors)
+
+    if (Object.keys(nextErrors).length > 0) {
+        return
     }
 
-    setValidationError(null)
-    onSubmit(formData)
+    onSubmit({
+        ...formData,
+        name: formData.name.trim(),
+        description: formData.description.trim(),
+    })
   }
 
   return (
@@ -91,15 +109,6 @@ function ProjectForm({
       onSubmit={handleSubmit}
       className="mt-6 rounded-xl border bg-white p-6"
     >
-      {validationError && (
-        <div
-          role="alert"
-          className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-        >
-          {validationError}
-        </div>
-      )}
-
       <div className="grid gap-5 md:grid-cols-2">
         <div>
           <label
@@ -115,7 +124,15 @@ function ProjectForm({
             onChange={(event) =>
               handleChange('clientId', event.target.value)
             }
-            className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-gray-900"
+            aria-invalid={Boolean(errors.clientId)}
+            aria-describedby={
+                errors.clientId ? 'clientId-error' : undefined
+            }
+            className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:ring-2 ${
+                errors.clientId
+                    ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-100'
+                    : 'focus:border-primary-500 focus:ring-primary-100'
+            }`}
             required
           >
             <option value="">Select a client</option>
@@ -126,6 +143,14 @@ function ProjectForm({
               </option>
             ))}
           </select>
+          {errors.clientId && (
+            <p
+                id='clientId-error'
+                className='mt-1 text-sm text-danger-600'
+            >
+                {errors.clientId}
+            </p>
+          )}
         </div>
 
         <div>
@@ -143,10 +168,24 @@ function ProjectForm({
             onChange={(event) =>
               handleChange('name', event.target.value)
             }
-            className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-gray-900"
+            aria-invalid={Boolean(errors.name)}
+            aria-describedby={errors.name ? 'name-error' : undefined}
+            className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 ${
+                errors.name
+                    ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-100'
+                    : 'focus:border-primary-500 focus:ring-primary-100'
+            }`}
             placeholder="Enter project name"
             required
           />
+          {errors.name && (
+            <p
+                id="name-error"
+                className="mt-1 text-sm text-danger-600"
+            >
+                {errors.name}
+            </p>
+          )}
         </div>
 
         <div className="md:col-span-2">
@@ -166,7 +205,7 @@ function ProjectForm({
                 event.target.value,
               )
             }
-            className="min-h-24 w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-gray-900"
+            className="min-h-24 w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
             placeholder="Describe the project"
           />
         </div>
@@ -188,7 +227,7 @@ function ProjectForm({
                 event.target.value as ProjectStatus,
               )
             }
-            className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-gray-900"
+            className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
           >
             <option value="PLANNING">Planning</option>
             <option value="IN_PROGRESS">In Progress</option>
@@ -217,9 +256,25 @@ function ProjectForm({
                 event.target.value,
               )
             }
-            className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-gray-900"
+            aria-invalid={Boolean(errors.startDate)}
+            aria-describedby={
+                errors.startDate ? 'startDate-error': undefined
+            }
+            className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:ring-2 ${
+                errors.startDate
+                    ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-100'
+                    : 'focus:border-primary-500 focus:ring-primary-100'
+            }`}
             required
           />
+          {errors.startDate && (
+            <p
+                id="startDate-error"
+                className="mt-1 text-sm text-danger-600"
+            >
+                {errors.startDate}
+            </p>
+          )}
         </div>
 
         <div>
@@ -240,24 +295,36 @@ function ProjectForm({
                 event.target.value,
               )
             }
-            className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:border-gray-900"
+            className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:ring-2 ${
+                errors.dueDate
+                    ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-100'
+                    : 'focus:border-primary-500 focus:ring-primary-100'
+            }`}
             required
           />
+          {errors.dueDate && (
+            <p
+                id="dueDate-error"
+                className="mt-1 text-sm text-danger-600"
+            >
+                {errors.dueDate}
+            </p>
+          )}
         </div>
       </div>
 
-      <div className="mt-6 flex justify-end gap-3">
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="w-full rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 sm:w-auto"
         >
           Cancel
         </button>
 
         <button
           type="submit"
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+          className="w-full rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 sm:w-auto"
         >
           {submitLabel}
         </button>
