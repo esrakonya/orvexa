@@ -1,3 +1,4 @@
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? ''
 const CSRF_ENDPOINT = '/api/csrf'
 const CSRF_HEADER = 'X-XSRF-TOKEN'
 
@@ -20,30 +21,24 @@ export class ApiError extends Error {
 
 let csrfToken: string | null = null
 
-
 async function fetchCsrfToken(): Promise<string> {
-  const response = await fetch(CSRF_ENDPOINT, {
-    method: 'GET',
-    credentials: 'include',
-  })
+    const response = await fetch(`${API_BASE_URL}${CSRF_ENDPOINT}`, {
+        method: 'GET',
+        credentials: 'include',
+    })
 
-  if (!response.ok) {
-    throw new ApiError('CSRF token could not be obtained.', response.status)
-  }
+    if (!response.ok) {
+        throw new ApiError('CSRF token could not be obtained.', response.status)
+    }
 
-  const csrfCookie = document.cookie
-    .split('; ')
-    .find((cookie) => cookie.startsWith('XSRF-TOKEN='))
+    const data: { token: string } = await response.json()
 
-  if (!csrfCookie) {
-    throw new ApiError('CSRF cookie could not be found.', response.status)
-  }
+    if (!data.token) {
+        throw new ApiError('CSRF token is missing from the response.', response.status)
+    }
 
-  csrfToken = decodeURIComponent(
-    csrfCookie.substring('XSRF-TOKEN='.length),
-  )
-
-  return csrfToken
+    csrfToken = data.token
+    return csrfToken
 }
 
 
@@ -69,7 +64,7 @@ export async function apiRequest<T>(
         headers.set(CSRF_HEADER, token)
     }
 
-    const response = await fetch(path, {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
         ...options,
         method,
         headers,
