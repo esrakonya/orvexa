@@ -31,4 +31,9 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
             UUID assigneeMembershipId,
             UUID workspaceId
     );
+
+    boolean existsByProjectIdAndWorkspaceId(
+        UUID projectId,
+        UUID workspaceId
+    );
 }

@@ -98,8 +98,16 @@ public class Task {
         return projectId;
     }
 
+    public void setProjectId(UUID projectId) {
+        this.projectId = projectId;
+    }
+
     public UUID getAssigneeMembershipId() {
         return assigneeMembershipId;
+    }
+
+    public void setAssigneeMembershipId(UUID assigneeMembershipId) {
+        this.assigneeMembershipId = assigneeMembershipId;
     }
 
     public String getTitle() {

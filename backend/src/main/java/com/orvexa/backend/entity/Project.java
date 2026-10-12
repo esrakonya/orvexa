@@ -1,4 +1,3 @@
-
 package com.orvexa.backend.entity;
 
 import jakarta.persistence.Column;
@@ -100,6 +99,10 @@ public class Project {
 
     public UUID getClientId() {
         return clientId;
+    }
+
+    public void setClientId(UUID clientId) {
+        this.clientId = clientId;
     }
 
     public String getName() {

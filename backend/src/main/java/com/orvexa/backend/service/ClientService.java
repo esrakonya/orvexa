@@ -5,6 +5,7 @@ import com.orvexa.backend.entity.Client;
 import com.orvexa.backend.entity.WorkspaceMembership;
 import com.orvexa.backend.repository.*;
 import com.orvexa.backend.security.CustomUserDetails;
+import com.orvexa.backend.service.ActivityService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,15 +20,18 @@ public class ClientService {
     private final ClientRepository clientRepository;
     private final ProjectRepository projectRepository;
     private final WorkspaceMembershipRepository membershipRepository;
+    private final ActivityService activityService;
 
     public ClientService(
             ClientRepository clientRepository,
             ProjectRepository projectRepository,
-            WorkspaceMembershipRepository membershipRepository
+            WorkspaceMembershipRepository membershipRepository,
+            ActivityService activityService
     ) {
         this.clientRepository = clientRepository;
         this.projectRepository = projectRepository;
         this.membershipRepository = membershipRepository;
+        this.activityService = activityService;
     }
 
     @Transactional(readOnly = true)
@@ -47,9 +51,13 @@ public class ClientService {
 
     @Transactional
     public ClientResponse createClient(
-            CreateClientRequest request, CustomUserDetails user) {
+            CreateClientRequest request,
+            CustomUserDetails user
+    ) {
+        UUID workspaceId = getWorkspaceId(user);
+
         Client client = new Client(
-                getWorkspaceId(user),
+                workspaceId,
                 request.name().trim(),
                 request.email().trim().toLowerCase(),
                 clean(request.phone()),
@@ -57,12 +65,26 @@ public class ClientService {
                 clean(request.notes())
         );
 
-        return ClientResponse.from(clientRepository.save(client));
+        Client savedClient = clientRepository.save(client);
+
+        activityService.recordActivity(
+                user,
+                "CREATED",
+                "CLIENT",
+                savedClient.getId(),
+                "created a client: " + savedClient.getName()
+        );
+
+        return ClientResponse.from(savedClient);
     }
+
 
     @Transactional
     public ClientResponse updateClient(
-            UUID id, UpdateClientRequest request, CustomUserDetails user) {
+            UUID id,
+            UpdateClientRequest request,
+            CustomUserDetails user
+    ) {
         Client client = findClient(id, getWorkspaceId(user));
 
         if (request.name() != null) client.setName(request.name().trim());
@@ -74,8 +96,19 @@ public class ClientService {
         if (request.notes() != null) client.setNotes(clean(request.notes()));
         if (request.status() != null) client.setStatus(request.status());
 
-        return ClientResponse.from(clientRepository.save(client));
+        Client updatedClient = clientRepository.save(client);
+
+        activityService.recordActivity(
+                user,
+                "UPDATED",
+                "CLIENT",
+                updatedClient.getId(),
+                "updated a client: " + updatedClient.getName()
+        );
+
+        return ClientResponse.from(updatedClient);
     }
+
 
     @Transactional
     public void deleteClient(UUID id, CustomUserDetails user) {
@@ -89,8 +122,17 @@ public class ClientService {
             );
         }
 
+        activityService.recordActivity(
+                user,
+                "DELETED",
+                "CLIENT",
+                client.getId(),
+                "deleted a client: " + client.getName()
+        );
+
         clientRepository.delete(client);
     }
+
 
     private Client findClient(UUID id, UUID workspaceId) {
         return clientRepository.findByIdAndWorkspaceId(id, workspaceId)

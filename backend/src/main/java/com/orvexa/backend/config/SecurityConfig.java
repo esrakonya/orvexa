@@ -78,7 +78,9 @@ public class SecurityConfig {
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/csrf",
-                                "/error"
+                                "/error",
+                                "/api/workspace-invitations/preview",
+                                "/api/workspace-invitations/register"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
