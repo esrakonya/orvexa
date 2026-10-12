@@ -86,7 +86,7 @@ function LoginPage() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               className="w-full rounded-lg border border-sage-mist px-3 py-2.5 text-sm outline-none transition focus:border-sage focus:ring-2 focus:ring-sage-mist"
-              placeholder="ornek@firma.com"
+              placeholder="example@member.com"
             />
           </div>
 
@@ -107,7 +107,7 @@ function LoginPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               className="w-full rounded-lg border border-sage-mist px-3 py-2.5 text-sm outline-none transition focus:border-sage focus:ring-2 focus:ring-sage-mist"
-              placeholder="Passwordnız"
+              placeholder="Password"
             />
           </div>
 

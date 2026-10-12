@@ -26,8 +26,6 @@ public final class SpaCsrfTokenRequestHandler
             Supplier<CsrfToken> csrfToken
     ) {
         this.xor.handle(request, response, csrfToken);
-
-        // Token'ın ertelenmiş üretimini tetikler.
         csrfToken.get();
     }
 
@@ -38,10 +36,7 @@ public final class SpaCsrfTokenRequestHandler
     ) {
         String headerValue = request.getHeader(csrfToken.getHeaderName());
 
-        if (StringUtils.hasText(headerValue)) {
-            return this.plain.resolveCsrfTokenValue(request, csrfToken);
-        }
-
-        return this.xor.resolveCsrfTokenValue(request, csrfToken);
+        return (StringUtils.hasText(headerValue) ? this.plain : this.xor)
+                .resolveCsrfTokenValue(request, csrfToken);
     }
 }
