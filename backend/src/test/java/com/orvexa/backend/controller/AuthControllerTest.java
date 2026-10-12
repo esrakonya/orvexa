@@ -1,5 +1,6 @@
 package com.orvexa.backend.controller;
 
+import com.jayway.jsonpath.JsonPath;
 import com.orvexa.backend.entity.User;
 import com.orvexa.backend.entity.Workspace;
 import com.orvexa.backend.entity.WorkspaceMembership;
@@ -10,19 +11,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -31,6 +31,12 @@ class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private WorkspaceMembershipRepository membershipRepository;
 
     private MockHttpServletRequestBuilder withCsrfCookie(
             MockHttpServletRequestBuilder request) throws Exception {
@@ -45,16 +51,19 @@ class AuthControllerTest {
                 .as("/api/csrf XSRF-TOKEN cookie üretmeli")
                 .isNotNull();
 
+        String token = JsonPath.read(
+                csrfResult.getResponse().getContentAsString(),
+                "$.token"
+        );
+
+        assertThat(token)
+                .as("/api/csrf JSON yanıtı token üretmeli")
+                .isNotBlank();
+
         return request
                 .cookie(csrfCookie)
-                .header("X-XSRF-TOKEN", csrfCookie.getValue());
+                .header("X-XSRF-TOKEN", token);
     }
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private WorkspaceMembershipRepository membershipRepository;
 
     @Test
     void registerReturnsCreatedAndPersistsAccount() throws Exception {
@@ -97,33 +106,34 @@ class AuthControllerTest {
     @Test
     void registerReturnsBadRequestForInvalidEmail() throws Exception {
         String request = """
-            {
-              "name": "HTTP Test User",
-              "email": "not-an-email",
-              "password": "StrongTestPassword123!",
-              "workspaceName": "HTTP Test Workspace",
-              "industry": "Technology"
-            }
-            """;
+                {
+                  "name": "HTTP Test User",
+                  "email": "not-an-email",
+                  "password": "StrongTestPassword123!",
+                  "workspaceName": "HTTP Test Workspace",
+                  "industry": "Technology"
+                }
+                """;
 
         mockMvc.perform(withCsrfCookie(post("/api/auth/register"))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(request))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status").value(400))
-            .andExpect(jsonPath("$.message").isNotEmpty());
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(request))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").isNotEmpty());
     }
 
-
     @Test
-    void registerReturnsBadRequestForPasswordShorterThanMinimum() throws Exception {
+    void registerReturnsBadRequestForPasswordShorterThanMinimum()
+            throws Exception {
+
         String request = """
                 {
-                "name": "HTTP Test User",
-                "email": "short-password-%s@example.com",
-                "password": "Short123!",
-                "workspaceName": "HTTP Test Workspace",
-                "industry": "Technology"
+                  "name": "HTTP Test User",
+                  "email": "short-password-%s@example.com",
+                  "password": "Short123!",
+                  "workspaceName": "HTTP Test Workspace",
+                  "industry": "Technology"
                 }
                 """.formatted(UUID.randomUUID());
 
@@ -136,16 +146,15 @@ class AuthControllerTest {
                         .value("Password must be between 12 and 72 characters."));
     }
 
-
     @Test
     void registerReturnsBadRequestForBlankName() throws Exception {
         String request = """
                 {
-                "name": "   ",
-                "email": "blank-name@example.com",
-                "password": "StrongTestPassword123!",
-                "workspaceName": "HTTP Test Workspace",
-                "industry": "Technology"
+                  "name": "   ",
+                  "email": "blank-name@example.com",
+                  "password": "StrongTestPassword123!",
+                  "workspaceName": "HTTP Test Workspace",
+                  "industry": "Technology"
                 }
                 """;
 
@@ -154,8 +163,7 @@ class AuthControllerTest {
                         .content(request))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message")
-                        .value("Name is required."));
+                .andExpect(jsonPath("$.message").value("Name is required."));
     }
 
     @Test
@@ -186,7 +194,6 @@ class AuthControllerTest {
                         .value("An account with this email already exists."));
     }
 
-
     @Test
     void csrfEndpointReturnsTokenAndSetsCookie() throws Exception {
         mockMvc.perform(get("/api/csrf"))
@@ -194,22 +201,20 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.token").isNotEmpty())
                 .andExpect(jsonPath("$.headerName").value("X-XSRF-TOKEN"))
                 .andExpect(jsonPath("$.parameterName").value("_csrf"))
-                .andExpect(result -> {
-                    assertThat(result.getResponse().getCookie("XSRF-TOKEN"))
-                            .isNotNull();
-                });
+                .andExpect(result ->
+                        assertThat(result.getResponse().getCookie("XSRF-TOKEN"))
+                                .isNotNull());
     }
-
 
     @Test
     void registerRejectsRequestWithoutCsrfToken() throws Exception {
         String request = """
                 {
-                "name": "CSRF Test User",
-                "email": "csrf-test@example.com",
-                "password": "StrongTestPassword123!",
-                "workspaceName": "CSRF Test Workspace",
-                "industry": "Technology"
+                  "name": "CSRF Test User",
+                  "email": "csrf-test@example.com",
+                  "password": "StrongTestPassword123!",
+                  "workspaceName": "CSRF Test Workspace",
+                  "industry": "Technology"
                 }
                 """;
 
@@ -225,11 +230,11 @@ class AuthControllerTest {
 
         String request = """
                 {
-                "name": "CSRF Test User",
-                "email": "%s",
-                "password": "StrongTestPassword123!",
-                "workspaceName": "CSRF Test Workspace",
-                "industry": "Technology"
+                  "name": "CSRF Test User",
+                  "email": "%s",
+                  "password": "StrongTestPassword123!",
+                  "workspaceName": "CSRF Test Workspace",
+                  "industry": "Technology"
                 }
                 """.formatted(email);
 
@@ -239,7 +244,6 @@ class AuthControllerTest {
                 .andExpect(status().isCreated());
     }
 
-
     @Test
     void csrfCookieTokenIsAcceptedInRequestHeader() throws Exception {
         var csrfResult = mockMvc.perform(get("/api/csrf"))
@@ -247,24 +251,26 @@ class AuthControllerTest {
                 .andReturn();
 
         var csrfCookie = csrfResult.getResponse().getCookie("XSRF-TOKEN");
-
         assertThat(csrfCookie).isNotNull();
 
-        String token = csrfCookie.getValue();
+        String token = JsonPath.read(
+                csrfResult.getResponse().getContentAsString(),
+                "$.token"
+        );
 
         String email = "csrf-header-" + UUID.randomUUID() + "@example.com";
 
         String request = """
                 {
-                "name": "CSRF Header Test",
-                "email": "%s",
-                "password": "StrongTestPassword123!",
-                "workspaceName": "CSRF Header Workspace",
-                "industry": "Technology"
+                  "name": "CSRF Header Test",
+                  "email": "%s",
+                  "password": "StrongTestPassword123!",
+                  "workspaceName": "CSRF Header Workspace",
+                  "industry": "Technology"
                 }
                 """.formatted(email);
 
-        mockMvc.perform((post("/api/auth/register"))
+        mockMvc.perform(post("/api/auth/register")
                         .cookie(csrfCookie)
                         .header("X-XSRF-TOKEN", token)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -278,7 +284,6 @@ class AuthControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
-
     @Test
     void loginClearsCsrfCookie() throws Exception {
         String email = "csrf-login-" + UUID.randomUUID() + "@example.com";
@@ -286,11 +291,11 @@ class AuthControllerTest {
 
         String registerRequest = """
                 {
-                "name": "CSRF Login Test",
-                "email": "%s",
-                "password": "%s",
-                "workspaceName": "CSRF Login Workspace",
-                "industry": "Technology"
+                  "name": "CSRF Login Test",
+                  "email": "%s",
+                  "password": "%s",
+                  "workspaceName": "CSRF Login Workspace",
+                  "industry": "Technology"
                 }
                 """.formatted(email, password);
 
@@ -301,8 +306,8 @@ class AuthControllerTest {
 
         String loginRequest = """
                 {
-                "email": "%s",
-                "password": "%s"
+                  "email": "%s",
+                  "password": "%s"
                 }
                 """.formatted(email, password);
 
@@ -317,7 +322,6 @@ class AuthControllerTest {
         assertThat(csrfCookie).isNotNull();
         assertThat(csrfCookie.getMaxAge()).isZero();
     }
-
 
     @Test
     void csrfTokenCanBeFetchedOnRepeatedRequests() throws Exception {
@@ -344,11 +348,11 @@ class AuthControllerTest {
 
         String registerRequest = """
                 {
-                "name": "Wrong Password Test",
-                "email": "%s",
-                "password": "%s",
-                "workspaceName": "Wrong Password Workspace",
-                "industry": "Technology"
+                  "name": "Wrong Password Test",
+                  "email": "%s",
+                  "password": "%s",
+                  "workspaceName": "Wrong Password Workspace",
+                  "industry": "Technology"
                 }
                 """.formatted(email, password);
 
@@ -359,8 +363,8 @@ class AuthControllerTest {
 
         String loginRequest = """
                 {
-                "email": "%s",
-                "password": "WrongPassword123!"
+                  "email": "%s",
+                  "password": "WrongPassword123!"
                 }
                 """.formatted(email);
 
@@ -370,13 +374,12 @@ class AuthControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
-
     @Test
     void loginReturnsUnauthorizedForUnknownEmail() throws Exception {
         String loginRequest = """
                 {
-                "email": "unknown-%s@example.com",
-                "password": "AnyPassword123!"
+                  "email": "unknown-%s@example.com",
+                  "password": "AnyPassword123!"
                 }
                 """.formatted(UUID.randomUUID());
 
@@ -386,7 +389,6 @@ class AuthControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
-
     @Test
     void loginCreatesSessionAndMeReturnsAuthenticatedUser() throws Exception {
         String email = "login-" + UUID.randomUUID() + "@example.com";
@@ -394,11 +396,11 @@ class AuthControllerTest {
 
         String registerRequest = """
                 {
-                "name": "Login Test User",
-                "email": "%s",
-                "password": "%s",
-                "workspaceName": "Login Test Workspace",
-                "industry": "Technology"
+                  "name": "Login Test User",
+                  "email": "%s",
+                  "password": "%s",
+                  "workspaceName": "Login Test Workspace",
+                  "industry": "Technology"
                 }
                 """.formatted(email, password);
 
@@ -409,8 +411,8 @@ class AuthControllerTest {
 
         String loginRequest = """
                 {
-                "email": "%s",
-                "password": "%s"
+                  "email": "%s",
+                  "password": "%s"
                 }
                 """.formatted(email, password);
 
@@ -433,7 +435,6 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.email").value(email));
     }
 
-
     @Test
     void logoutClearsCsrfCookie() throws Exception {
         String email = "csrf-logout-" + UUID.randomUUID() + "@example.com";
@@ -441,11 +442,11 @@ class AuthControllerTest {
 
         String registerRequest = """
                 {
-                "name": "CSRF Logout Test",
-                "email": "%s",
-                "password": "%s",
-                "workspaceName": "CSRF Logout Workspace",
-                "industry": "Technology"
+                  "name": "CSRF Logout Test",
+                  "email": "%s",
+                  "password": "%s",
+                  "workspaceName": "CSRF Logout Workspace",
+                  "industry": "Technology"
                 }
                 """.formatted(email, password);
 
@@ -456,8 +457,8 @@ class AuthControllerTest {
 
         String loginRequest = """
                 {
-                "email": "%s",
-                "password": "%s"
+                  "email": "%s",
+                  "password": "%s"
                 }
                 """.formatted(email, password);
 
@@ -490,11 +491,11 @@ class AuthControllerTest {
 
         String registerRequest = """
                 {
-                "name": "Logout Test User",
-                "email": "%s",
-                "password": "%s",
-                "workspaceName": "Logout Test Workspace",
-                "industry": "Technology"
+                  "name": "Logout Test User",
+                  "email": "%s",
+                  "password": "%s",
+                  "workspaceName": "Logout Test Workspace",
+                  "industry": "Technology"
                 }
                 """.formatted(email, password);
 
@@ -505,8 +506,8 @@ class AuthControllerTest {
 
         String loginRequest = """
                 {
-                "email": "%s",
-                "password": "%s"
+                  "email": "%s",
+                  "password": "%s"
                 }
                 """.formatted(email, password);
 
