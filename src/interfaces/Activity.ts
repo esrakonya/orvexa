@@ -1,22 +1,22 @@
 export type ActivityType =
-  | 'CREATED'
-  | 'UPDATED'
-  | 'DELETED'
-  | 'COMPLETED'
+    | 'CREATED'
+    | 'UPDATED'
+    | 'DELETED'
+    | 'COMPLETED'
 
 export type ActivityEntityType =
-  | 'CLIENT'
-  | 'PROJECT'
-  | 'TASK'
-  | 'USER'
+    | 'CLIENT'
+    | 'PROJECT'
+    | 'TASK'
+    | 'USER'
 
 export interface Activity {
-  id: string
-  workspaceId: string
-  userId: string
-  type: ActivityType
-  entityType: ActivityEntityType
-  entityId: string
-  description: string
-  createdAt: string
+    id: string
+    workspaceId: string
+    actorMembershipId: string
+    type: ActivityType
+    entityType: ActivityEntityType
+    entityId: string
+    description: string
+    createdAt: string
 }

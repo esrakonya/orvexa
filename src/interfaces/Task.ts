@@ -1,6 +1,6 @@
-export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'COMPLETED'
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'COMPLETED'
 
-export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH'
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH'
 
 export interface Task {
     id: string

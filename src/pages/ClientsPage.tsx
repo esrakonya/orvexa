@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ClientFilters, {
     type ClientFiltersState,
 } from '../components/clients/ClientFilters'
@@ -25,18 +25,61 @@ const statusLabels: Record<ClientStatus, string> = {
     INACTIVE: 'Inactive',
 }
 
+function getErrorMessage(error: unknown): string {
+    return error instanceof Error
+        ? error.message
+        : 'An unexpected error occurred.'
+}
+
 function ClientsPage() {
-    const [clients, setClients] = useState<Client[]>(() =>
-        getAllClients(),
+    const [clients, setClients] = useState<Client[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [loadError, setLoadError] = useState<string | null>(null)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [deletingClientId, setDeletingClientId] = useState<string | null>(
+        null,
     )
+
     const [filters, setFilters] = useState<ClientFiltersState>({
         search: '',
         status: '',
         industry: '',
     })
+
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [editingClient, setEditingClient] = useState<Client | null>(null)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+    useEffect(() => {
+        let isMounted = true
+
+        async function loadClients() {
+            setIsLoading(true)
+            setLoadError(null)
+
+            try {
+                const result = await getAllClients()
+
+                if (isMounted) {
+                    setClients(result)
+                }
+            } catch (error) {
+                if (isMounted) {
+                    setLoadError(getErrorMessage(error))
+                }
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false)
+                }
+            }
+        }
+
+        void loadClients()
+
+        return () => {
+            isMounted = false
+        }
+    }, [])
 
     const industries = Array.from(
         new Set(clients.map((client) => client.industry)),
@@ -58,11 +101,7 @@ function ClientsPage() {
             filters.industry === '' ||
             client.industry === filters.industry
 
-        return (
-            matchesSearch &&
-            matchesStatus &&
-            matchesIndustry
-        )
+        return matchesSearch && matchesStatus && matchesIndustry
     })
 
     const hasActiveFilters =
@@ -70,10 +109,17 @@ function ClientsPage() {
         filters.status !== '' ||
         filters.industry !== ''
 
-    const handleSubmitClient = (formData: ClientFormData) => {
+    const handleSubmitClient = async (formData: ClientFormData) => {
+        if (isSubmitting) {
+            return
+        }
+
+        setIsSubmitting(true)
+        setErrorMessage(null)
+
         try {
             if (editingClient) {
-                const updatedClient = updateClient(
+                const updatedClient = await updateClient(
                     editingClient.id,
                     formData,
                 )
@@ -85,32 +131,26 @@ function ClientsPage() {
                             : client,
                     ),
                 )
-
-                setEditingClient(null)
-                setIsFormOpen(false)
-                setErrorMessage(null)
-
-                return
-            }
-
-            const newClient = createClient({
-                ...formData,
-                workspaceId: 'workspace-1',
-            })
-
-            setClients((current) => [...current, newClient])
-            setIsFormOpen(false)
-            setErrorMessage(null)
-        } catch (error) {
-            if (error instanceof Error) {
-                setErrorMessage(error.message)
             } else {
-                setErrorMessage('An unexpected error occurred.')
+                const newClient = await createClient(formData)
+
+                setClients((current) => [...current, newClient])
             }
+
+            setEditingClient(null)
+            setIsFormOpen(false)
+        } catch (error) {
+            setErrorMessage(getErrorMessage(error))
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
-    const handleDeleteClient = (clientId: string) => {
+    const handleDeleteClient = async (clientId: string) => {
+        if (deletingClientId !== null || isSubmitting) {
+            return
+        }
+
         const client = clients.find((item) => item.id === clientId)
 
         if (!client) {
@@ -118,27 +158,26 @@ function ClientsPage() {
         }
 
         const confirmed = window.confirm(
-            `Are you sure you want to delete "${client.name}"`,
+            `Are you sure you want to delete "${client.name}" ? `,
         )
 
         if (!confirmed) {
             return
         }
 
+        setDeletingClientId(clientId)
+        setErrorMessage(null)
+
         try {
-            deleteClient(clientId)
+            await deleteClient(clientId)
 
             setClients((current) =>
-                current.filter((client) => client.id !== clientId),
+                current.filter((item) => item.id !== clientId),
             )
-
-            setErrorMessage(null)
         } catch (error) {
-            if (error instanceof Error) {
-                setErrorMessage(error.message)
-            } else {
-                setErrorMessage('An unexpected error occurred.')
-            }
+            setErrorMessage(getErrorMessage(error))
+        } finally {
+            setDeletingClientId(null)
         }
     }
 
@@ -149,20 +188,28 @@ function ClientsPage() {
     }
 
     const handleCancelForm = () => {
+        if (isSubmitting) {
+            return
+        }
+
         setIsFormOpen(false)
         setEditingClient(null)
         setErrorMessage(null)
+    }
+
+    const handleRetryLoad = () => {
+        window.location.reload()
     }
 
     return (
         <div>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">
+                    <h1 className="text-2xl font-bold text-forest">
                         Clients
                     </h1>
 
-                    <p className="mt-1 text-sm text-gray-600">
+                    <p className="mt-1 text-sm text-sage">
                         Manage your organization's clients.
                     </p>
                 </div>
@@ -170,7 +217,13 @@ function ClientsPage() {
                 <button
                     type="button"
                     onClick={handleAddClient}
-                    className="w-full rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700 sm:w-auto"
+                    disabled={
+                        isSubmitting ||
+                        isLoading ||
+                        loadError !== null ||
+                        deletingClientId !== null
+                    }
+                    className="w-full rounded-lg bg-forest px-4 py-2 text-sm font-medium text-white transition hover:bg-[#10352c] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                 >
                     Add Client
                 </button>
@@ -202,6 +255,7 @@ function ClientsPage() {
                     submitLabel={
                         editingClient ? 'Save Changes' : 'Add Client'
                     }
+                    isSubmitting={isSubmitting}
                     onSubmit={handleSubmitClient}
                     onCancel={handleCancelForm}
                 />
@@ -216,15 +270,38 @@ function ClientsPage() {
             </div>
 
             <div className="mt-6 overflow-x-auto rounded-xl border bg-white">
-                {filteredClients.length === 0 ? (
+                {isLoading ? (
+                    <div
+                        role="status"
+                        className="px-6 py-12 text-center text-sm text-sage"
+                    >
+                        Loading clients...
+                    </div>
+                ) : loadError ? (
+                    <div
+                        role="alert"
+                        className="px-6 py-12 text-center text-sm text-danger-700"
+                    >
+                        <p>Could not load clients.</p>
+                        <p className="mt-2">{loadError}</p>
+
+                        <button
+                            type="button"
+                            onClick={handleRetryLoad}
+                            className="mt-4 rounded-lg border px-4 py-2 font-medium text-forest transition hover:bg-ivory"
+                        >
+                            Retry
+                        </button>
+                    </div>
+                ) : filteredClients.length === 0 ? (
                     <div className="px-6 py-12 text-center">
-                        <h2 className="text-lg font-semibold text-gray-900">
+                        <h2 className="text-lg font-semibold text-forest">
                             {clients.length === 0
                                 ? 'No clients yet'
                                 : 'No clients match your filters'}
                         </h2>
 
-                        <p className="mt-2 text-sm text-gray-500">
+                        <p className="mt-2 text-sm text-sage">
                             {clients.length === 0
                                 ? 'Add your first client to start managing your client relationships.'
                                 : 'Try adjusting your search or filters.'}
@@ -234,7 +311,7 @@ function ClientsPage() {
                             <button
                                 type="button"
                                 onClick={handleAddClient}
-                                className="mt-4 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700"
+                                className="mt-4 rounded-lg bg-forest px-4 py-2 text-sm font-medium text-white transition hover:bg-[#10352c]"
                             >
                                 Add Client
                             </button>
@@ -248,7 +325,7 @@ function ClientsPage() {
                                         industry: '',
                                     })
                                 }
-                                className="mt-4 rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                                className="mt-4 rounded-lg border px-4 py-2 text-sm font-medium text-forest transition hover:bg-ivory"
                             >
                                 Clear Filters
                             </button>
@@ -256,7 +333,7 @@ function ClientsPage() {
                     </div>
                 ) : (
                     <div className="min-w-[760px]">
-                        <div className="grid grid-cols-[1.2fr_1fr_0.8fr_2fr_140px] border-b bg-gray-50 px-6 py-3 text-sm font-medium text-gray-600">
+                        <div className="grid grid-cols-[1.2fr_1fr_0.8fr_2fr_140px] border-b bg-ivory px-6 py-3 text-sm font-medium text-sage">
                             <span>Client</span>
                             <span>Industry</span>
                             <span>Status</span>
@@ -269,11 +346,11 @@ function ClientsPage() {
                                 key={client.id}
                                 className="grid grid-cols-[1.2fr_1fr_0.8fr_2fr_140px] items-center border-b px-6 py-4 text-sm last:border-b-0"
                             >
-                                <span className="min-w-0 truncate font-medium text-gray-900">
+                                <span className="min-w-0 truncate font-medium text-forest">
                                     {client.name}
                                 </span>
 
-                                <span className="text-gray-600">
+                                <span className="text-sage">
                                     {client.industry}
                                 </span>
 
@@ -282,38 +359,48 @@ function ClientsPage() {
                                         className={
                                             client.status === 'ACTIVE'
                                                 ? 'inline-flex rounded-full bg-success-50 px-2.5 py-1 text-xs font-medium text-success-700'
-                                                : 'inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600'
+                                                : 'inline-flex rounded-full bg-sage-mist px-2.5 py-1 text-xs font-medium text-sage'
                                         }
                                     >
                                         {statusLabels[client.status]}
                                     </span>
                                 </span>
 
-                                <span className="min-w-0 truncate text-gray-600">
+                                <span className="min-w-0 truncate text-sage">
                                     {client.email}
                                 </span>
 
                                 <div className="flex min-w-[140px] justify-end gap-3">
                                     <button
                                         type="button"
+                                        disabled={
+                                            deletingClientId !== null ||
+                                            isSubmitting
+                                        }
                                         onClick={() => {
                                             setEditingClient(client)
                                             setErrorMessage(null)
                                             setIsFormOpen(true)
                                         }}
-                                        className="text-sm font-medium text-gray-600 transition hover:text-gray-900"
+                                        className="text-sm font-medium text-sage transition hover:text-forest disabled:cursor-not-allowed disabled:opacity-50"
                                     >
                                         Edit
                                     </button>
 
                                     <button
                                         type="button"
-                                        onClick={() =>
-                                            handleDeleteClient(client.id)
+                                        disabled={
+                                            deletingClientId !== null ||
+                                            isSubmitting
                                         }
-                                        className="text-sm font-medium text-danger-600 transition hover:text-danger-700"
+                                        onClick={() => {
+                                            void handleDeleteClient(client.id)
+                                        }}
+                                        className="text-sm font-medium text-danger-600 transition hover:text-danger-700 disabled:cursor-not-allowed disabled:opacity-50"
                                     >
-                                        Delete
+                                        {deletingClientId === client.id
+                                            ? 'Deleting...'
+                                            : 'Delete'}
                                     </button>
                                 </div>
                             </div>

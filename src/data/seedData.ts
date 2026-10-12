@@ -261,7 +261,7 @@ const activities: Activity[] = [
     {
       id: 'activity-1',
       workspaceId: 'workspace-1',
-      userId: 'user-2',
+      actorMembershipId: 'membership-2',
       type: 'CREATED',
       entityType: 'PROJECT',
       entityId: 'project-1',
@@ -271,7 +271,7 @@ const activities: Activity[] = [
     {
       id: 'activity-2',
       workspaceId: 'workspace-1',
-      userId: 'user-2',
+      actorMembershipId: 'membership-2',
       type: 'CREATED',
       entityType: 'PROJECT',
       entityId: 'project-2',
@@ -281,7 +281,7 @@ const activities: Activity[] = [
     {
       id: 'activity-3',
       workspaceId: 'workspace-1',
-      userId: 'user-3',
+      actorMembershipId: 'membership-3',
       type: 'COMPLETED',
       entityType: 'TASK',
       entityId: 'task-1',
@@ -291,7 +291,7 @@ const activities: Activity[] = [
     {
       id: 'activity-4',
       workspaceId: 'workspace-1',
-      userId: 'user-2',
+      actorMembershipId: 'membership-2',
       type: 'CREATED',
       entityType: 'CLIENT',
       entityId: 'client-3',
@@ -301,7 +301,7 @@ const activities: Activity[] = [
     {
       id: 'activity-5',
       workspaceId: 'workspace-1',
-      userId: 'user-3',
+      actorMembershipId: 'membership-3',
       type: 'UPDATED',
       entityType: 'TASK',
       entityId: 'task-2',
@@ -311,7 +311,7 @@ const activities: Activity[] = [
     {
       id: 'activity-6',
       workspaceId: 'workspace-1',
-      userId: 'user-2',
+      actorMembershipId: 'membership-2',
       type: 'UPDATED',
       entityType: 'PROJECT',
       entityId: 'project-1',
@@ -321,7 +321,7 @@ const activities: Activity[] = [
     {
       id: 'activity-7',
       workspaceId: 'workspace-1',
-      userId: 'user-2',
+      actorMembershipId: 'membership-2',
       type: 'CREATED',
       entityType: 'TASK',
       entityId: 'task-6',

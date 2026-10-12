@@ -1,83 +1,70 @@
-import type { Client } from "../interfaces/Client";
-import { getData, saveData } from "../repositories/localStorage/localStorageRepository";
+import { apiRequest } from '../api/apiClient'
+import type { Client } from '../interfaces/Client'
 
-export function getAllClients(): Client[] {
-    return getData().clients
+export type CreateClientInput = Pick<
+    Client,
+    'name' | 'email' | 'industry'
+> & {
+    phone?: string
+    notes?: string
 }
 
-export function getClientById(clientId: string): Client | undefined {
-    return getData().clients.find((client) => client.id === clientId)
+export type UpdateClientInput = Partial<
+    Pick<
+        Client,
+        'name' | 'email' | 'phone' | 'industry' | 'notes' | 'status'
+    >
+>
+
+const CLIENTS_ENDPOINT = '/api/clients'
+
+export function getAllClients(): Promise<Client[]> {
+    return apiRequest<Client[]>(CLIENTS_ENDPOINT)
+}
+
+export function getClientById(
+    clientId: string,
+): Promise<Client> {
+    return apiRequest<Client>(
+        `${CLIENTS_ENDPOINT }/${clientId}`,
+    )
 }
 
 export function createClient(
-    client: Omit<Client, 'id' | 'createdAt'>,
-): Client {
-    const data = getData()
-
-    const newClient: Client = {
-        ...client,
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
-    }
-
-    data.clients.push(newClient)
-
-    saveData(data)
-
-    return newClient
+  client: CreateClientInput,
+): Promise<Client> {
+  return apiRequest<Client>(CLIENTS_ENDPOINT, {
+    method: 'POST',
+    body: {
+      name: client.name,
+      email: client.email,
+      phone: client.phone,
+      industry: client.industry,
+      notes: client.notes,
+    },
+  })
 }
 
 export function updateClient(
-    clientId: string,
-    updates: Partial<Omit<Client, 'id' | 'workspaceId' | 'createdAt'>>,
-  ): Client {
-    const data = getData()
-  
-    const clientIndex = data.clients.findIndex(
-      (client) => client.id === clientId,
-    )
-  
-    if (clientIndex === -1) {
-      throw new Error('Client not found.')
-    }
-  
-    const updatedClient: Client = {
-      ...data.clients[clientIndex],
-      ...updates,
-    }
-  
-    data.clients[clientIndex] = updatedClient
-  
-    saveData(data)
-  
-    return updatedClient
+  clientId: string,
+  updates: UpdateClientInput,
+): Promise<Client> {
+  return apiRequest<Client>(
+    `${CLIENTS_ENDPOINT}/${clientId}`,
+    {
+      method: 'PATCH',
+      body: updates,
+    },
+  )
 }
 
-
-export function deleteClient(clientId: string): void {
-    const data = getData()
-  
-    const clientExists = data.clients.some(
-      (client) => client.id === clientId,
-    )
-  
-    if (!clientExists) {
-      throw new Error('Client not found.')
-    }
-  
-    const hasProjects = data.projects.some(
-      (project) => project.clientId === clientId,
-    )
-  
-    if (hasProjects) {
-      throw new Error(
-        'Cannot delete a client that has associated projects.',
-      )
-    }
-  
-    data.clients = data.clients.filter(
-      (client) => client.id !== clientId,
-    )
-  
-    saveData(data)
+export function deleteClient(
+  clientId: string,
+): Promise<void> {
+  return apiRequest<void>(
+    `${CLIENTS_ENDPOINT}/${clientId}`,
+    {
+      method: 'DELETE',
+    },
+  )
 }

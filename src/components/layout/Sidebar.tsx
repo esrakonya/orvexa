@@ -27,7 +27,7 @@ function Sidebar({ isOpen, onNavigate }: SidebarProps) {
         `}
       >
         <div className="flex h-16 items-center border-b px-6">
-          <span className="text-xl font-bold tracking-tight text-gray-900">
+          <span className="text-xl font-bold tracking-tight text-forest">
             Orvexa
           </span>
         </div>
@@ -44,8 +44,8 @@ function Sidebar({ isOpen, onNavigate }: SidebarProps) {
                 className={({ isActive }) =>
                   `relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-primary-50 text-primary-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-sage-mist text-forest'
+                      : 'text-sage hover:bg-ivory hover:text-forest'
                   }`
                 }
               >
@@ -53,7 +53,7 @@ function Sidebar({ isOpen, onNavigate }: SidebarProps) {
                   <>
                     {isActive && (
                       <span
-                        className="absolute inset-y-2 left-0 w-0.5 rounded-r-full bg-primary-600"
+                        className="absolute inset-y-2 left-0 w-0.5 rounded-r-full bg-forest"
                         aria-hidden="true"
                       />
                     )}
@@ -61,8 +61,8 @@ function Sidebar({ isOpen, onNavigate }: SidebarProps) {
                     <Icon
                       className={`h-5 w-5 ${
                         isActive
-                          ? 'text-primary-600'
-                          : 'text-gray-500'
+                          ? 'text-forest'
+                          : 'text-sage'
                       }`}
                     />
 

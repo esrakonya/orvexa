@@ -42,7 +42,7 @@ function TaskFilters({
         filters.overdue
 
     const fieldClassName =
-        'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100'
+        'w-full rounded-lg border border-sage-mist px-3 py-2 text-sm text-forest outline-none transition focus:border-sage focus:ring-2 focus:ring-sage-mist'
 
     return (
         <div className="mt-6 rounded-xl border bg-white p-4 shadow-sm">
@@ -50,7 +50,7 @@ function TaskFilters({
                 <div className="xl:col-span-2">
                     <label
                         htmlFor="task-search"
-                        className="mb-1 block text-sm font-medium text-gray-700"
+                        className="mb-1 block text-sm font-medium text-forest"
                     >
                         Search
                     </label>
@@ -70,7 +70,7 @@ function TaskFilters({
                 <div>
                     <label
                         htmlFor="task-project-filter"
-                        className="mb-1 block text-sm font-medium text-gray-700"
+                        className="mb-1 block text-sm font-medium text-forest"
                     >
                         Project
                     </label>
@@ -99,7 +99,7 @@ function TaskFilters({
                 <div>
                     <label
                         htmlFor="task-assignee-filter"
-                        className="mb-1 block text-sm font-medium text-gray-700"
+                        className="mb-1 block text-sm font-medium text-forest"
                     >
                         Assignee
                     </label>
@@ -131,7 +131,7 @@ function TaskFilters({
                 <div>
                     <label
                         htmlFor="task-status-filter"
-                        className="mb-1 block text-sm font-medium text-gray-700"
+                        className="mb-1 block text-sm font-medium text-forest"
                     >
                         Status
                     </label>
@@ -158,7 +158,7 @@ function TaskFilters({
                 <div>
                     <label
                         htmlFor="task-priority-filter"
-                        className="mb-1 block text-sm font-medium text-gray-700"
+                        className="mb-1 block text-sm font-medium text-forest"
                     >
                         Priority
                     </label>
@@ -183,14 +183,14 @@ function TaskFilters({
             </div>
 
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-forest">
                     <input
                         type="checkbox"
                         checked={filters.overdue}
                         onChange={(event) =>
                             onChange('overdue', event.target.checked)
                         }
-                        className="h-4 w-4 rounded border-gray-300 accent-primary-600 focus:ring-2 focus:ring-primary-100"
+                        className="h-4 w-4 rounded border-sage-mist accent-forest focus:ring-2 focus:ring-sage-mist"
                     />
 
                     Show overdue tasks only
@@ -200,7 +200,7 @@ function TaskFilters({
                     <button
                         type="button"
                         onClick={onClear}
-                        className="rounded-md px-2 py-1 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                        className="rounded-md px-2 py-1 text-sm font-medium text-sage transition hover:bg-ivory hover:text-forest focus:outline-none focus:ring-2 focus:ring-sage-mist"
                     >
                         Clear filters
                     </button>

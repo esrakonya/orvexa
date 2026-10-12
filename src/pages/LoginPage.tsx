@@ -7,6 +7,7 @@ interface LoginLocationState {
   message?: string
   from?: {
     pathname?: string
+    search?: string
   }
 }
 
@@ -18,6 +19,7 @@ function LoginPage() {
   const navigationState = location.state as LoginLocationState | null
   const successMessage = navigationState?.message
   const returnPath = navigationState?.from?.pathname ?? '/dashboard'
+  const returnSearch = navigationState?.from?.search ?? ''
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -31,14 +33,14 @@ function LoginPage() {
 
     try {
       await login({ email: email.trim(), password })
-      navigate(returnPath, { replace: true })
+      navigate(`${returnPath}${returnSearch}`, { replace: true })
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
-        setError('E-posta veya parola hatalı.')
+        setError('Invalid email or password.')
       } else if (err instanceof ApiError) {
         setError(err.message)
       } else {
-        setError('Giriş sırasında bir hata oluştu. Lütfen tekrar deneyin.')
+        setError('Something went wrong while signing in. Please try again.')
       }
     } finally {
       setIsSubmitting(false)
@@ -46,14 +48,14 @@ function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
-      <section className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+    <main className="flex min-h-screen items-center justify-center bg-ivory px-4 py-12">
+      <section className="w-full max-w-md rounded-2xl border border-sage-mist bg-white p-8 shadow-sm">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+          <h1 className="text-3xl font-bold tracking-tight text-forest">
             Orvexa
           </h1>
-          <p className="mt-2 text-sm text-gray-500">
-            Çalışma alanınıza giriş yapın.
+          <p className="mt-2 text-sm text-sage">
+            Sign in to your workspace.
           </p>
         </div>
 
@@ -70,9 +72,9 @@ function LoginPage() {
           <div>
             <label
               htmlFor="email"
-              className="mb-1.5 block text-sm font-medium text-gray-700"
+              className="mb-1.5 block text-sm font-medium text-forest"
             >
-              E-posta
+              Email Address
             </label>
             <input
               id="email"
@@ -83,7 +85,7 @@ function LoginPage() {
               maxLength={255}
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+              className="w-full rounded-lg border border-sage-mist px-3 py-2.5 text-sm outline-none transition focus:border-sage focus:ring-2 focus:ring-sage-mist"
               placeholder="ornek@firma.com"
             />
           </div>
@@ -91,9 +93,9 @@ function LoginPage() {
           <div>
             <label
               htmlFor="password"
-              className="mb-1.5 block text-sm font-medium text-gray-700"
+              className="mb-1.5 block text-sm font-medium text-forest"
             >
-              Parola
+              Password
             </label>
             <input
               id="password"
@@ -104,8 +106,8 @@ function LoginPage() {
               maxLength={72}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-              placeholder="Parolanız"
+              className="w-full rounded-lg border border-sage-mist px-3 py-2.5 text-sm outline-none transition focus:border-sage focus:ring-2 focus:ring-sage-mist"
+              placeholder="Passwordnız"
             />
           </div>
 
@@ -121,19 +123,19 @@ function LoginPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-lg bg-forest px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#10352c] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? 'Giriş yapılıyor…' : 'Giriş yap'}
+            {isSubmitting ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Henüz hesabınız yok mu?{' '}
+        <p className="mt-6 text-center text-sm text-sage">
+          Don't have an account?{' '}
           <Link
             to="/register"
-            className="font-semibold text-primary-600 hover:text-primary-700"
+            className="font-semibold text-forest hover:text-sage"
           >
-            Hesap oluşturun
+            Create an account
           </Link>
         </p>
       </section>

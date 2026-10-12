@@ -14,6 +14,7 @@ import NotFoundPage from '../pages/NotFoundPage'
 import LoginPage from '../pages/LoginPage'
 import RegisterPage from '../pages/RegisterPage'
 import ProtectedRoute from './ProtectedRoute'
+import AcceptInvitationPage from '../pages/AcceptInvitationPage'
 import { useAuth } from '../contexts/AuthContext'
 
 interface GuestRouteProps {
@@ -25,8 +26,8 @@ function GuestRoute({ children }: GuestRouteProps) {
 
     if (isLoading) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-gray-50">
-                <p className="text-sm text-gray-500">
+            <div className="flex min-h-screen items-center justify-center bg-ivory">
+                <p className="text-sm text-sage">
                     Oturum kontrol ediliyor…
                 </p>
             </div>
@@ -59,6 +60,11 @@ function AppRoutes() {
                         <RegisterPage />
                     </GuestRoute>
                 }
+            />
+
+            <Route
+                path="/accept-invitation"
+                element={<AcceptInvitationPage />}
             />
 
             <Route element={<ProtectedRoute />}>

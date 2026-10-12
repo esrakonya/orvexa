@@ -1,13 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import TaskForm, {
+    type TaskFormData,
+} from '../components/tasks/TaskForm'
 import TaskFilters, {
     type TaskFiltersState,
 } from '../components/tasks/TaskFilters'
-import TaskForm from '../components/tasks/TaskForm'
-import type {
-    Task,
-    TaskPriority,
-    TaskStatus,
-} from '../interfaces/Task'
+import type { Task } from '../interfaces/Task'
 import {
     createTask,
     deleteTask,
@@ -18,88 +16,167 @@ import { getAllProjects } from '../services/projectService'
 import { getAllUsers } from '../services/userService'
 import { isTaskOverdue } from '../utils/taskUtils'
 
-interface TaskFormData {
-    projectId: string
-    title: string
-    description: string
-    status: TaskStatus
-    priority: TaskPriority
-    assigneeId: string
-    dueDate: string
-}
-
-const statusLabels: Record<TaskStatus, string> = {
-    TODO: 'To Do',
-    IN_PROGRESS: 'In Progress',
-    COMPLETED: 'Completed',
-}
-
-const statusStyles: Record<
-    TaskStatus,
-    string
-> = {
-    TODO: 'bg-gray-100 text-gray-700',
-    IN_PROGRESS: 'bg-info-50 text-info-700',
-    COMPLETED: 'bg-success-50 text-success-700',
-}
-
-const priorityLabels: Record<
-    TaskPriority,
-    string
-> = {
-    LOW: 'Low',
-    MEDIUM: 'Medium',
-    HIGH: 'High',
-}
-
-const priorityStyles: Record<
-    TaskPriority,
-    string
-> = {
-    LOW: 'bg-gray-100 text-gray-700',
-    MEDIUM: 'bg-warning-50 text-warning-700',
-    HIGH: 'bg-danger-50 text-danger-700',
-}
-
-function formatDueDate(date: string): string {
-    return new Intl.DateTimeFormat('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-    }).format(new Date(`${date}T00:00:00`))
-}
-
 function TasksPage() {
-    const [tasks, setTasks] = useState<Task[]>(() =>
-        getAllTasks(),
-    )
+    const [tasks, setTasks] = useState<Task[]>([])
+    const [isLoadingTasks, setIsLoadingTasks] = useState(true)
+    const [tasksError, setTasksError] = useState<string | null>(null)
 
-    const [projects] = useState(() =>
-        getAllProjects(),
-    )
+    const [projects, setProjects] = useState<
+        { id: string; name: string; dueDate: string; status?: string }[]
+    >([])
+    const [isLoadingProjects, setIsLoadingProjects] = useState(true)
+    const [projectsError, setProjectsError] = useState<string | null>(null)
 
-    const [users] = useState(() =>
-        getAllUsers(),
-    )
+    const [users, setUsers] = useState<
+        { id: string; name: string; email: string; role: string; workspaceId: string }[]
+    >([])
+    const [isLoadingUsers, setIsLoadingUsers] = useState(true)
+    const [usersError, setUsersError] = useState<string | null>(null)
 
-    const [filters, setFilters] =
-        useState<TaskFiltersState>({
-            search: '',
-            projectId: '',
-            assigneeId: '',
-            status: '',
-            priority: '',
-            overdue: false,
+    const [filters, setFilters] = useState<TaskFiltersState>({
+        search: '',
+        status: '',
+        priority: '',
+        projectId: '',
+        assigneeId: '',
+        overdue: false,
+    })
+
+    const [isFormOpen, setIsFormOpen] = useState(false)
+    const [editingTask, setEditingTask] = useState<Task | null>(null)
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null)
+
+    useEffect(() => {
+        let isMounted = true
+
+        const loadProjects = async () => {
+            try {
+                setProjectsError(null)
+                const result = await getAllProjects()
+
+                if (isMounted) {
+                    setProjects(result)
+                }
+            } catch (error: unknown) {
+                if (isMounted) {
+                    setProjectsError(
+                        error instanceof Error
+                            ? error.message
+                            : 'Could not load projects.',
+                    )
+                }
+            } finally {
+                if (isMounted) {
+                    setIsLoadingProjects(false)
+                }
+            }
+        }
+
+        void loadProjects()
+
+        return () => {
+            isMounted = false
+        }
+    }, [])
+
+    useEffect(() => {
+        let isMounted = true
+
+        const loadTasks = async () => {
+            try {
+                setTasksError(null)
+                const result = await getAllTasks()
+
+                if (isMounted) {
+                    setTasks(result)
+                }
+            } catch (error: unknown) {
+                if (isMounted) {
+                    setTasksError(
+                        error instanceof Error
+                            ? error.message
+                            : 'Could not load tasks.',
+                    )
+                }
+            } finally {
+                if (isMounted) {
+                    setIsLoadingTasks(false)
+                }
+            }
+        }
+
+        void loadTasks()
+
+        return () => {
+            isMounted = false
+        }
+    }, [])
+
+    useEffect(() => {
+        let isMounted = true
+
+        const loadUsers = async () => {
+            try {
+                setUsersError(null)
+                const result = await getAllUsers()
+
+                if (isMounted) {
+                    setUsers(result)
+                }
+            } catch (error: unknown) {
+                if (isMounted) {
+                    setUsersError(
+                        error instanceof Error
+                            ? error.message
+                            : 'Could not load team members.',
+                    )
+                }
+            } finally {
+                if (isMounted) {
+                    setIsLoadingUsers(false)
+                }
+            }
+        }
+
+        void loadUsers()
+
+        return () => {
+            isMounted = false
+        }
+    }, [])
+
+    const filteredTasks = useMemo(() => {
+        return tasks.filter((task) => {
+            const matchesSearch =
+                task.title
+                    .toLowerCase()
+                    .includes(filters.search.toLowerCase()) ||
+                task.description
+                    .toLowerCase()
+                    .includes(filters.search.toLowerCase())
+
+            const matchesStatus = !filters.status || task.status === filters.status
+
+            const matchesPriority = !filters.priority || task.priority === filters.priority
+
+            const matchesProject = !filters.projectId || task.projectId === filters.projectId
+
+            const matchesAssignee = !filters.assigneeId || task.assigneeId === filters.assigneeId
+
+            const matchesOverdue = !filters.overdue || isTaskOverdue(task)
+
+            return (
+                matchesSearch &&
+                matchesStatus &&
+                matchesPriority &&
+                matchesProject &&
+                matchesAssignee &&
+                matchesOverdue
+            )
         })
-
-    const [isFormOpen, setIsFormOpen] =
-        useState(false)
-
-    const [editingTask, setEditingTask] =
-        useState<Task | null>(null)
-
-    const [errorMessage, setErrorMessage] =
-        useState<string | null>(null)
+    }, [tasks, filters])
 
     const handleFilterChange = (
         field: keyof TaskFiltersState,
@@ -114,71 +191,33 @@ function TasksPage() {
     const handleClearFilters = () => {
         setFilters({
             search: '',
-            projectId: '',
-            assigneeId: '',
             status: '',
             priority: '',
+            projectId: '',
+            assigneeId: '',
             overdue: false,
         })
     }
 
-    const filteredTasks = tasks.filter((task) => {
-        const normalizedSearch =
-            filters.search.trim().toLowerCase()
+    const handleOpenCreateForm = () => {
+        setEditingTask(null)
+        setErrorMessage(null)
+        setIsFormOpen(true)
+    }
 
-        if (
-            normalizedSearch &&
-            !task.title
-                .toLowerCase()
-                .includes(normalizedSearch)
-        ) {
-            return false
-        }
+    const handleOpenEditForm = (task: Task) => {
+        setEditingTask(task)
+        setErrorMessage(null)
+        setIsFormOpen(true)
+    }
 
-        if (
-            filters.projectId &&
-            task.projectId !== filters.projectId
-        ) {
-            return false
-        }
+    const handleSubmitTask = async (formData: TaskFormData) => {
+        setIsSubmitting(true)
+        setErrorMessage(null)
 
-        if (
-            filters.assigneeId &&
-            task.assigneeId !== filters.assigneeId
-        ) {
-            return false
-        }
-
-        if (
-            filters.status &&
-            task.status !== filters.status
-        ) {
-            return false
-        }
-
-        if (
-            filters.priority &&
-            task.priority !== filters.priority
-        ) {
-            return false
-        }
-
-        if (
-            filters.overdue &&
-            !isTaskOverdue(task)
-        ) {
-            return false
-        }
-
-        return true
-    })
-
-    const handleSubmitTask = (
-        formData: TaskFormData,
-    ) => {
         try {
             if (editingTask) {
-                const updatedTask = updateTask(
+                const updatedTask = await updateTask(
                     editingTask.id,
                     formData,
                 )
@@ -193,115 +232,237 @@ function TasksPage() {
 
                 setEditingTask(null)
                 setIsFormOpen(false)
-                setErrorMessage(null)
-
                 return
             }
 
-            const newTask = createTask({
-                ...formData,
-                workspaceId: 'workspace-1',
-            })
+            const newTask = await createTask(formData)
 
-            setTasks((current) => [
-                ...current,
-                newTask,
-            ])
-
+            setTasks((current) => [...current, newTask])
             setIsFormOpen(false)
-            setErrorMessage(null)
-        } catch (error) {
-            if (error instanceof Error) {
-                setErrorMessage(error.message)
-            } else {
-                setErrorMessage(
-                    'An unexpected error occurred.',
-                )
-            }
+        } catch (error: unknown) {
+            setErrorMessage(
+                error instanceof Error
+                    ? error.message
+                    : 'An unexpected error occurred.',
+            )
+        } finally {
+            setIsSubmitting(false)
         }
     }
 
-    const handleDeleteTask = (
-        taskId: string,
-    ) => {
-        const task = tasks.find(
-            (item) => item.id === taskId,
-        )
+    const handleDeleteTask = async (taskId: string) => {
+        const task = tasks.find((item) => item.id === taskId)
 
-        if (!task) {
-            return
-        }
+        if (!task) return
 
         const confirmed = window.confirm(
-            `Are you sure you want to delete "${task.title}"?`,
+            `Are you sure you want to delete "${task.title}" ? `,
         )
 
-        if (!confirmed) {
-            return
-        }
+        if (!confirmed) return
+
+        setDeletingTaskId(taskId)
+        setErrorMessage(null)
 
         try {
-            deleteTask(taskId)
+            await deleteTask(taskId)
 
             setTasks((current) =>
-                current.filter(
-                    (item) => item.id !== taskId,
-                ),
+                current.filter((item) => item.id !== taskId),
             )
-
-            setErrorMessage(null)
-        } catch (error) {
-            if (error instanceof Error) {
-                setErrorMessage(error.message)
-            } else {
-                setErrorMessage(
-                    'An unexpected error occurred.',
-                )
-            }
+        } catch (error: unknown) {
+            setErrorMessage(
+                error instanceof Error
+                    ? error.message
+                    : 'An unexpected error occurred.',
+            )
+        } finally {
+            setDeletingTaskId(null)
         }
     }
 
-    const hasActiveFilters =
-        filters.search.trim() !== '' ||
-        filters.projectId !== '' ||
-        filters.assigneeId !== '' ||
-        filters.status !== '' ||
-        filters.priority !== '' ||
-        filters.overdue
+    const getProjectName = (projectId: string) => {
+        return (
+            projects.find((project) => project.id === projectId)?.name ??
+            'Unknown project'
+        )
+    }
+
+    const getAssigneeName = (assigneeId: string) => {
+        return (
+            users.find((user) => user.id === assigneeId)?.name ??
+            'Unknown member'
+        )
+    }
+
+    const getStatusLabel = (status: Task['status']) => {
+        switch (status) {
+            case 'TODO':
+                return 'To do'
+            case 'IN_PROGRESS':
+                return 'In progress'
+            case 'COMPLETED':
+                return 'Completed'
+        }
+    }
+
+    const getPriorityLabel = (priority: Task['priority']) => {
+        switch (priority) {
+            case 'LOW':
+                return 'Low'
+            case 'MEDIUM':
+                return 'Medium'
+            case 'HIGH':
+                return 'High'
+        }
+    }
+
+    const getStatusClass = (status: Task['status']) => {
+        switch (status) {
+            case 'TODO':
+                return 'bg-sage-mist text-forest'
+            case 'IN_PROGRESS':
+                return 'bg-blue-100 text-blue-700'
+            case 'COMPLETED':
+                return 'bg-green-100 text-green-700'
+        }
+    }
+
+    const getPriorityClass = (priority: Task['priority']) => {
+        switch (priority) {
+            case 'LOW':
+                return 'bg-sage-mist text-forest'
+            case 'MEDIUM':
+                return 'bg-amber-100 text-amber-700'
+            case 'HIGH':
+                return 'bg-red-100 text-red-700'
+        }
+    }
+
+    const isPageLoading =
+        isLoadingTasks || isLoadingProjects || isLoadingUsers
 
     return (
-        <div>
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-6">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
-                    <h1 className="text-2xl font-semibold text-gray-900">
+                    <h1 className="text-2xl font-semibold text-forest">
                         Tasks
                     </h1>
-
-                    <p className="mt-1 text-sm text-gray-500">
-                        Manage and track your organization's tasks.
+                    <p className="mt-1 text-sm text-sage">
+                        Manage and track your team's tasks.
                     </p>
                 </div>
 
                 <button
                     type="button"
-                    onClick={() => {
-                        setEditingTask(null)
-                        setErrorMessage(null)
-                        setIsFormOpen(true)
-                    }}
-                    className="w-full rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-200 sm:w-auto"
+                    onClick={handleOpenCreateForm}
+                    disabled={
+                        isLoadingProjects ||
+                        isLoadingUsers ||
+                        projects.length === 0 ||
+                        users.length === 0
+                    }
+                    className="rounded-lg bg-forest px-4 py-2 text-sm font-medium text-white hover:bg-[#10352c] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                    Add Task
+                    {isLoadingProjects || isLoadingUsers
+                        ? 'Loading form data...'
+                        : 'Add Task'}
                 </button>
             </div>
 
             {errorMessage && (
                 <div
                     role="alert"
-                    className="mt-6 rounded-lg border border-danger-100 bg-danger-50 px-4 py-3 text-sm text-danger-700"
+                    className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
                 >
                     {errorMessage}
                 </div>
+            )}
+
+            {tasksError && (
+                <div
+                    role="alert"
+                    className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                >
+                    Could not load tasks: {tasksError}
+                </div>
+            )}
+
+            {projectsError && (
+                <div
+                    role="alert"
+                    className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                >
+                    Could not load projects: {projectsError}
+                </div>
+            )}
+
+            {usersError && (
+                <div
+                    role="alert"
+                    className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+                >
+                    Could not load team members: {usersError}
+                </div>
+            )}
+
+            {projects.length === 0 &&
+                !isLoadingProjects &&
+                !projectsError && (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                        Create a project before adding tasks.
+                    </div>
+                )}
+
+            {users.length === 0 &&
+                !isLoadingUsers &&
+                !usersError && (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                        No workspace members are available to assign tasks to.
+                    </div>
+                )}
+
+            {isFormOpen && (
+                <section className="rounded-xl border border-sage-mist bg-white p-5 shadow-sm">
+                    <div className="mb-5">
+                        <h2 className="text-lg font-semibold text-forest">
+                            {editingTask ? 'Edit Task' : 'Create Task'}
+                        </h2>
+                        <p className="mt-1 text-sm text-sage">
+                            Enter the task details below.
+                        </p>
+                    </div>
+
+                    <TaskForm
+                        projects={projects}
+                        users={users}
+                        initialData={
+                            editingTask
+                                ? {
+                                      projectId: editingTask.projectId,
+                                      title: editingTask.title,
+                                      description: editingTask.description,
+                                      status: editingTask.status,
+                                      priority: editingTask.priority,
+                                      assigneeId: editingTask.assigneeId,
+                                      dueDate: editingTask.dueDate,
+                                  }
+                                : undefined
+                        }
+                        submitLabel={
+                            editingTask ? 'Update Task' : 'Create Task'
+                        }
+                        isSubmitting={isSubmitting}
+                        onSubmit={handleSubmitTask}
+                        onCancel={() => {
+                            if (isSubmitting) return
+                            setIsFormOpen(false)
+                            setEditingTask(null)
+                            setErrorMessage(null)
+                        }}
+                    />
+                </section>
             )}
 
             <TaskFilters
@@ -312,318 +473,145 @@ function TasksPage() {
                 onClear={handleClearFilters}
             />
 
-            {isFormOpen && (
-                <TaskForm
-                    projects={projects}
-                    users={users}
-                    initialData={
-                        editingTask
-                            ? {
-                                projectId:
-                                    editingTask.projectId,
-                                title: editingTask.title,
-                                description:
-                                    editingTask.description,
-                                status: editingTask.status,
-                                priority:
-                                    editingTask.priority,
-                                assigneeId:
-                                    editingTask.assigneeId,
-                                dueDate:
-                                    editingTask.dueDate,
-                            }
-                            : undefined
-                    }
-                    submitLabel={
-                        editingTask
-                            ? 'Save Changes'
-                            : 'Add Task'
-                    }
-                    onSubmit={handleSubmitTask}
-                    onCancel={() => {
-                        setIsFormOpen(false)
-                        setEditingTask(null)
-                        setErrorMessage(null)
-                    }}
-                />
-            )}
-
-            {/*
-        Desktop / tablet task table.
-        A minimum width prevents columns from collapsing
-        into each other on smaller screens.
-      */}
-            <div className="mt-6 hidden overflow-x-auto rounded-xl border bg-white md:block">
-                <div className="min-w-[1000px]">
-                    <div className="grid grid-cols-[2fr_1.4fr_1.3fr_0.9fr_1.1fr_1.2fr_140px] border-b bg-gray-50 px-6 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        <span>Task</span>
-                        <span>Project</span>
-                        <span>Assignee</span>
-                        <span>Priority</span>
-                        <span>Status</span>
-                        <span>Due Date</span>
-                        <span className="text-right">
-                            Actions
-                        </span>
-                    </div>
-
-                    {filteredTasks.length === 0 ? (
-                        <div className="px-6 py-12 text-center">
-                            <p className="text-sm font-medium text-gray-900">
-                                {hasActiveFilters
-                                    ? 'No tasks match your filters'
-                                    : 'No tasks yet'}
-                            </p>
-
-                            <p className="mt-1 text-sm text-gray-500">
-                                {hasActiveFilters
-                                    ? 'Try changing or clearing your filters.'
-                                    : 'Create your first task to start tracking work.'}
-                            </p>
-
-                            {hasActiveFilters && (
-                                <button
-                                    type="button"
-                                    onClick={handleClearFilters}
-                                    className="mt-4 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-100"
-                                >
-                                    Clear filters
-                                </button>
-                            )}
-                        </div>
-                    ) : (
-                        filteredTasks.map((task) => {
-                            const project = projects.find(
-                                (item) =>
-                                    item.id === task.projectId,
-                            )
-
-                            const assignee = users.find(
-                                (user) =>
-                                    user.id === task.assigneeId,
-                            )
-
-                            const overdue = isTaskOverdue(task)
-
-                            return (
-                                <div
-                                    key={task.id}
-                                    className="grid grid-cols-[2fr_1.4fr_1.3fr_0.9fr_1.1fr_1.2fr_140px] items-center border-b px-6 py-4 text-sm last:border-b-0"
-                                >
-                                    <span className="min-w-0 truncate font-medium text-gray-900">
-                                        {task.title}
-                                    </span>
-
-                                    <span className="min-w-0 truncate text-gray-600">
-                                        {project?.name ??
-                                            'Unknown project'}
-                                    </span>
-
-                                    <span className="min-w-0 truncate text-gray-600">
-                                        {assignee?.name ??
-                                            'Unknown user'}
-                                    </span>
-
-                                    <span>
-                                        <span
-                                            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${priorityStyles[task.priority]}`}
-                                        >
-                                            {priorityLabels[task.priority]}
-                                        </span>
-                                    </span>
-
-                                    <span>
-                                        <span
-                                            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[task.status]}`}
-                                        >
-                                            {statusLabels[task.status]}
-                                        </span>
-                                    </span>
-
-                                    <div className="min-w-0">
-                                        <span
-                                            className={
-                                                overdue
-                                                    ? 'font-medium text-danger-600'
-                                                    : 'text-gray-600'
-                                            }
-                                        >
-                                            {formatDueDate(task.dueDate)}
-                                        </span>
-
-                                        {overdue && (
-                                            <span className="ml-2 text-xs font-medium text-danger-600">
-                                                Overdue
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    <div className="flex min-w-[140px] justify-end gap-3">
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setEditingTask(task)
-                                                setErrorMessage(null)
-                                                setIsFormOpen(true)
-                                            }}
-                                            className="rounded-md px-2 py-1 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-100"
-                                        >
-                                            Edit
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                handleDeleteTask(task.id)
-                                            }
-                                            className="rounded-md px-2 py-1 text-sm font-medium text-danger-600 transition hover:bg-danger-50 hover:text-danger-700 focus:outline-none focus:ring-2 focus:ring-danger-100"
-                                        >
-                                            Delete
-                                        </button>
-                                    </div>
-                                </div>
-                            )
-                        })
-                    )}
+            {isPageLoading ? (
+                <div className="rounded-xl border border-sage-mist bg-white p-8 text-center text-sm text-sage">
+                    Loading tasks and related data...
                 </div>
-            </div>
-
-            {/*
-        Mobile task cards.
-        Cards are used instead of squeezing seven table
-        columns into a narrow viewport.
-      */}
-            <div className="mt-6 space-y-3 md:hidden">
-                {filteredTasks.length === 0 ? (
-                    <div className="rounded-xl border bg-white px-6 py-12 text-center">
-                        <p className="text-sm font-medium text-gray-900">
-                            {hasActiveFilters
-                                ? 'No tasks match your filters'
-                                : 'No tasks yet'}
-                        </p>
-
-                        <p className="mt-1 text-sm text-gray-500">
-                            {hasActiveFilters
-                                ? 'Try changing or clearing your filters.'
-                                : 'Create your first task to start tracking work.'}
-                        </p>
-
-                        {hasActiveFilters && (
-                            <button
-                                type="button"
-                                onClick={handleClearFilters}
-                                className="mt-4 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-100"
-                            >
-                                Clear filters
-                            </button>
-                        )}
-                    </div>
-                ) : (
-                    filteredTasks.map((task) => {
-                        const project = projects.find(
-                            (item) =>
-                                item.id === task.projectId,
-                        )
-
-                        const assignee = users.find(
-                            (user) =>
-                                user.id === task.assigneeId,
-                        )
-
-                        const overdue = isTaskOverdue(task)
-
-                        return (
-                            <article
-                                key={task.id}
-                                className="rounded-xl border bg-white p-4 shadow-sm"
-                            >
-                                <div className="min-w-0">
-                                    <h2 className="truncate font-semibold text-gray-900">
-                                        {task.title}
-                                    </h2>
-
-                                    <p className="mt-1 truncate text-sm text-gray-500">
-                                        {project?.name ??
-                                            'Unknown project'}
-                                    </p>
-                                </div>
-
-                                <div className="mt-4 flex flex-wrap gap-2">
-                                    <span
-                                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${priorityStyles[task.priority]}`}
-                                    >
-                                        {priorityLabels[task.priority]}
-                                    </span>
-
-                                    <span
-                                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusStyles[task.status]}`}
-                                    >
-                                        {statusLabels[task.status]}
-                                    </span>
-                                </div>
-
-                                <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-                                    <div className="min-w-0">
-                                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+            ) : (
+                <>
+                    <div className="overflow-hidden rounded-xl border border-sage-mist bg-white">
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-sage-mist">
+                                <thead className="bg-ivory">
+                                    <tr>
+                                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-sage">
+                                            Task
+                                        </th>
+                                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-sage">
+                                            Project
+                                        </th>
+                                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-sage">
                                             Assignee
-                                        </p>
+                                        </th>
+                                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-sage">
+                                            Status
+                                        </th>
+                                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-sage">
+                                            Priority
+                                        </th>
+                                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-sage">
+                                            Due date
+                                        </th>
+                                        <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-sage">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
 
-                                        <p className="mt-1 truncate text-gray-700">
-                                            {assignee?.name ??
-                                                'Unknown user'}
-                                        </p>
-                                    </div>
+                                <tbody className="divide-y divide-sage-mist">
+                                    {filteredTasks.map((task) => (
+                                        <tr key={task.id}>
+                                            <td className="px-5 py-4">
+                                                <div className="font-medium text-forest">
+                                                    {task.title}
+                                                </div>
+                                                <div className="mt-1 max-w-xs truncate text-sm text-sage">
+                                                    {task.description || '—'}
+                                                </div>
+                                            </td>
 
-                                    <div>
-                                        <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                                            Due Date
-                                        </p>
+                                            <td className="whitespace-nowrap px-5 py-4 text-sm text-forest">
+                                                {getProjectName(task.projectId)}
+                                            </td>
 
-                                        <p
-                                            className={`mt-1 ${overdue
-                                                    ? 'font-medium text-danger-600'
-                                                    : 'text-gray-700'
-                                                }`}
-                                        >
-                                            {formatDueDate(task.dueDate)}
-                                        </p>
+                                            <td className="whitespace-nowrap px-5 py-4 text-sm text-forest">
+                                                {getAssigneeName(task.assigneeId)}
+                                            </td>
 
-                                        {overdue && (
-                                            <p className="mt-0.5 text-xs font-medium text-danger-600">
-                                                Overdue
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
+                                            <td className="whitespace-nowrap px-5 py-4">
+                                                <span
+                                                    className={`rounded - full px - 2.5 py - 1 text - xs font - medium ${ getStatusClass(task.status) } `}
+                                                >
+                                                    {getStatusLabel(task.status)}
+                                                </span>
+                                            </td>
 
-                                <div className="mt-4 flex justify-end gap-2 border-t pt-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setEditingTask(task)
-                                            setErrorMessage(null)
-                                            setIsFormOpen(true)
-                                        }}
-                                        className="rounded-md px-3 py-1.5 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-100"
-                                    >
-                                        Edit
-                                    </button>
+                                            <td className="whitespace-nowrap px-5 py-4">
+                                                <span
+                                                    className={`rounded - full px - 2.5 py - 1 text - xs font - medium ${ getPriorityClass(task.priority) } `}
+                                                >
+                                                    {getPriorityLabel(task.priority)}
+                                                </span>
+                                            </td>
 
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleDeleteTask(task.id)
-                                        }
-                                        className="rounded-md px-3 py-1.5 text-sm font-medium text-danger-600 transition hover:bg-danger-50 hover:text-danger-700 focus:outline-none focus:ring-2 focus:ring-danger-100"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            </article>
-                        )
-                    })
-                )}
-            </div>
+                                            <td className="whitespace-nowrap px-5 py-4 text-sm text-forest">
+                                                <span
+                                                    className={
+                                                        isTaskOverdue(task)
+                                                            ? 'font-medium text-red-600'
+                                                            : ''
+                                                    }
+                                                >
+                                                    {task.dueDate}
+                                                </span>
+                                            </td>
+
+                                            <td className="whitespace-nowrap px-5 py-4 text-right text-sm">
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        handleOpenEditForm(task)
+                                                    }
+                                                    disabled={
+                                                        isSubmitting ||
+                                                        deletingTaskId !== null
+                                                    }
+                                                    className="mr-3 font-medium text-sage hover:text-forest disabled:cursor-not-allowed disabled:opacity-50"
+                                                >
+                                                    Edit
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() =>
+                                                        void handleDeleteTask(task.id)
+                                                    }
+                                                    disabled={
+                                                        deletingTaskId !== null ||
+                                                        isSubmitting
+                                                    }
+                                                    className="font-medium text-red-600 hover:text-red-800 disabled:cursor-not-allowed disabled:opacity-50"
+                                                >
+                                                    {deletingTaskId === task.id
+                                                        ? 'Deleting...'
+                                                        : 'Delete'}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+
+                                    {filteredTasks.length === 0 && (
+                                        <tr>
+                                            <td
+                                                colSpan={7}
+                                                className="px-5 py-10 text-center text-sm text-sage"
+                                            >
+                                                {tasks.length === 0
+                                                    ? 'No tasks have been created yet.'
+                                                    : 'No tasks match the selected filters.'}
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div className="text-sm text-sage">
+                        Showing {filteredTasks.length} of {tasks.length} tasks
+                    </div>
+                </>
+            )}
         </div>
     )
 }

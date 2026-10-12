@@ -7,8 +7,8 @@ function ProtectedRoute() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <p className="text-sm text-gray-500">
+      <div className="flex min-h-screen items-center justify-center bg-ivory">
+        <p className="text-sm text-sage">
           Oturum kontrol ediliyor…
         </p>
       </div>

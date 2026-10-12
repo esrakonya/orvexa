@@ -21,9 +21,9 @@ const statusLabels = {
 }
 
 const statusColors = {
-    TODO: '#9ca3af',
+    TODO: '#52796f',
     IN_PROGRESS: '#3b82f6',
-    COMPLETED: '#22c55e',
+    COMPLETED: '#173f35',
 }
 
 const statusData = [
@@ -60,11 +60,11 @@ function TaskStatusSummary({
     return (
         <section className="rounded-xl border bg-white p-5 shadow-sm">
             <div className="mb-5">
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-forest">
                     Task Status
                 </h2>
 
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-sage">
                     Current distribution of tasks by status.
                 </p>
             </div>
@@ -97,11 +97,11 @@ function TaskStatusSummary({
 
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                     <div className="text-center">
-                        <p className="text-3xl font-semibold text-gray-900">
+                        <p className="text-3xl font-semibold text-forest">
                             {totalTasks}
                         </p>
 
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-sage">
                             Total Tasks
                         </p>
                     </div>
@@ -121,12 +121,12 @@ function TaskStatusSummary({
                                 aria-hidden="true"
                             />
 
-                            <span className="text-sm text-gray-600">
+                            <span className="text-sm text-sage">
                                 {status.label}
                             </span>
                         </div>
 
-                        <span className="font-semibold text-gray-900">
+                        <span className="font-semibold text-forest">
                             {status.value}
                         </span>
                     </div>
