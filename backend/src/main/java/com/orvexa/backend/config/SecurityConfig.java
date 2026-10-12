@@ -1,5 +1,9 @@
 package com.orvexa.backend.config;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,9 +21,33 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.http.HttpStatus;
 
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(
+        @Value("${FRONTEND_URL:http://localhost:5173}") String frontendUrl
+    ) {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(List.of(frontendUrl));
+        configuration.setAllowedMethods(
+            List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
+        );
+        configuration.setAllowedHeaders(
+            List.of("Content-Type", "X-XSRF-TOKEN", "Accept")
+        );
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+            new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/api/**", configuration);
+
+        return source;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -62,9 +90,11 @@ public class SecurityConfig {
             org.springframework.security.config.annotation.web.builders.HttpSecurity http,
             SecurityContextRepository securityContextRepository,
             DaoAuthenticationProvider daoAuthenticationProvider,
-            CookieCsrfTokenRepository csrfTokenRepository
+            CookieCsrfTokenRepository csrfTokenRepository,
+            CorsConfigurationSource corsConfigurationSource
     ) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .authenticationProvider(daoAuthenticationProvider)
                 .securityContext(securityContext -> securityContext
                         .securityContextRepository(securityContextRepository)
