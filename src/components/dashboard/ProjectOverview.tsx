@@ -53,18 +53,18 @@ function ProjectOverview({
         <section className="rounded-xl border bg-white shadow-sm">
             <div className="flex items-start justify-between gap-4 border-b p-5">
                 <div>
-                    <h2 className="text-lg font-semibold text-gray-900">
+                    <h2 className="text-lg font-semibold text-forest">
                         Project Overview
                     </h2>
 
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-sage">
                         A quick overview of your current projects.
                     </p>
                 </div>
 
                 <Link
                     to="/projects"
-                    className="shrink-0 text-sm font-medium text-primary-600 hover:text-primary-700"
+                    className="shrink-0 text-sm font-medium text-forest hover:text-sage"
                 >
                     View all
                 </Link>
@@ -73,20 +73,20 @@ function ProjectOverview({
             <div className="overflow-x-auto">
                 <table className="min-w-full">
                     <thead>
-                        <tr className="border-b bg-gray-50 text-left">
-                            <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                        <tr className="border-b bg-ivory text-left">
+                            <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-sage">
                                 Project
                             </th>
 
-                            <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-sage">
                                 Client
                             </th>
 
-                            <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-sage">
                                 Status
                             </th>
 
-                            <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                            <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-sage">
                                 Progress
                             </th>
                         </tr>
@@ -103,13 +103,13 @@ function ProjectOverview({
                                         <td className="px-5 py-4">
                                             <Link
                                                 to={`/projects/${project.id}`}
-                                                className="font-medium text-gray-900 hover:text-primary-600 hover:underline"
+                                                className="font-medium text-forest hover:text-forest hover:underline"
                                             >
                                                 {project.name}
                                             </Link>
                                         </td>
 
-                                        <td className="px-5 py-4 text-sm text-gray-600">
+                                        <td className="px-5 py-4 text-sm text-sage">
                                             {client?.name ?? 'Unknown client'}
                                         </td>
 
@@ -123,7 +123,7 @@ function ProjectOverview({
 
                                         <td className="px-5 py-4">
                                             <div className="flex min-w-32 items-center gap-3">
-                                                <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
+                                                <div className="h-2 flex-1 overflow-hidden rounded-full bg-sage-mist">
                                                     <div
                                                         className={`h-full rounded-full ${statusStyles.progress}`}
                                                         style={{
@@ -132,7 +132,7 @@ function ProjectOverview({
                                                     />
                                                 </div>
 
-                                                <span className="w-10 text-right text-sm text-gray-600">
+                                                <span className="w-10 text-right text-sm text-sage">
                                                     {progress}%
                                                 </span>
                                             </div>

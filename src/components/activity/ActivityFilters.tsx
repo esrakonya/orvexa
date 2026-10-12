@@ -42,7 +42,7 @@ function ActivityFilters({
         <div className="w-full sm:max-w-xs">
           <label
             htmlFor="activity-entity-type"
-            className="mb-1.5 block text-sm font-medium text-gray-700"
+            className="mb-1.5 block text-sm font-medium text-forest"
           >
             Type
           </label>
@@ -51,7 +51,7 @@ function ActivityFilters({
             id="activity-entity-type"
             value={filters.entityType}
             onChange={handleEntityTypeChange}
-            className="w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
+            className="w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none transition focus:border-sage focus:ring-2 focus:ring-sage-mist"
           >
             <option value="">All activity</option>
 
@@ -72,7 +72,7 @@ function ActivityFilters({
           type="button"
           onClick={handleClear}
           disabled={!hasActiveFilters}
-          className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-lg border px-4 py-2 text-sm font-medium text-forest transition hover:bg-ivory disabled:cursor-not-allowed disabled:opacity-50"
         >
           Clear
         </button>

@@ -24,7 +24,7 @@ function getProgressColor(status: ProjectStatus) {
             return 'bg-success-500'
 
         default:
-            return 'bg-gray-400'
+            return 'bg-sage'
     }
 }
 
@@ -34,11 +34,11 @@ function ProjectProgressList({
     return (
         <section className="rounded-xl border bg-white p-5 shadow-sm">
             <div className="mb-5">
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-forest">
                     Project Progress
                 </h2>
 
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-sage">
                     Current progress based on completed tasks.
                 </p>
             </div>
@@ -47,16 +47,16 @@ function ProjectProgressList({
                 {projects.map(({ project, progress }) => (
                     <div key={project.id}>
                         <div className="mb-2 flex items-center justify-between gap-4">
-                            <span className="truncate text-sm font-medium text-gray-700">
+                            <span className="truncate text-sm font-medium text-forest">
                                 {project.name}
                             </span>
 
-                            <span className="shrink-0 text-sm font-medium text-gray-500">
+                            <span className="shrink-0 text-sm font-medium text-sage">
                                 {progress}%
                             </span>
                         </div>
 
-                        <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+                        <div className="h-2 overflow-hidden rounded-full bg-sage-mist">
                             <div
                                 className={`h-full rounded-full transition-all ${getProgressColor(project.status)}`}
                                 style={{ width: `${progress}%` }}

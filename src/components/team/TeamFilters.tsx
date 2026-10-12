@@ -55,7 +55,7 @@ function TeamFilters({
         <div>
           <label
             htmlFor="team-search"
-            className="mb-1.5 block text-sm font-medium text-gray-700"
+            className="mb-1.5 block text-sm font-medium text-forest"
           >
             Search
           </label>
@@ -66,14 +66,14 @@ function TeamFilters({
             value={filters.search}
             onChange={handleSearchChange}
             placeholder="Search by name or email..."
-            className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
+            className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sage focus:ring-2 focus:ring-sage-mist"
           />
         </div>
 
         <div>
           <label
             htmlFor="team-role"
-            className="mb-1.5 block text-sm font-medium text-gray-700"
+            className="mb-1.5 block text-sm font-medium text-forest"
           >
             Role
           </label>
@@ -82,7 +82,7 @@ function TeamFilters({
             id="team-role"
             value={filters.role}
             onChange={handleRoleChange}
-            className="w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200"
+            className="w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none transition focus:border-sage focus:ring-2 focus:ring-sage-mist"
           >
             <option value="">All roles</option>
 
@@ -101,7 +101,7 @@ function TeamFilters({
             type="button"
             onClick={handleClear}
             disabled={!hasActiveFilters}
-            className="w-full rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 md:w-auto"
+            className="w-full rounded-lg border px-4 py-2 text-sm font-medium text-forest transition hover:bg-ivory disabled:cursor-not-allowed disabled:opacity-50 md:w-auto"
           >
             Clear
           </button>

@@ -1,8 +1,8 @@
-import type { Activity } from "../interfaces/Activity";
-import {
-    getData,
-} from '../repositories/localStorage/localStorageRepository'
+import { apiRequest } from '../api/apiClient'
+import type { Activity } from '../interfaces/Activity'
 
-export function getAllActivities(): Activity[] {
-    return getData().activities
+const ACTIVITIES_ENDPOINT = '/api/activities'
+
+export function getAllActivities(): Promise<Activity[]> {
+    return apiRequest<Activity[]>(ACTIVITIES_ENDPOINT)
 }

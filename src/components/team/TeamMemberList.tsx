@@ -16,11 +16,11 @@ function TeamMemberList({
   if (users.length === 0) {
     return (
       <section className="rounded-xl border bg-white p-8 text-center shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-forest">
           No team members found
         </h2>
 
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-2 text-sm text-sage">
           Try adjusting your search or role filter.
         </p>
       </section>
@@ -32,16 +32,16 @@ function TeamMemberList({
       <div className="overflow-x-auto">
         <table className="min-w-full">
           <thead>
-            <tr className="border-b bg-gray-50 text-left">
-              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <tr className="border-b bg-ivory text-left">
+              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-sage">
                 Member
               </th>
 
-              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-sage">
                 Email
               </th>
 
-              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-sage">
                 Role
               </th>
             </tr>
@@ -52,24 +52,24 @@ function TeamMemberList({
               <tr key={user.id}>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                      <span className="text-sm font-medium text-gray-700">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sage-mist">
+                      <span className="text-sm font-medium text-forest">
                         {user.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
 
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-forest">
                       {user.name}
                     </span>
                   </div>
                 </td>
 
-                <td className="px-5 py-4 text-sm text-gray-600">
+                <td className="px-5 py-4 text-sm text-sage">
                   {user.email}
                 </td>
 
                 <td className="px-5 py-4">
-                  <span className="inline-flex rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+                  <span className="inline-flex rounded-full bg-sage-mist px-2.5 py-1 text-xs font-medium text-forest">
                     {roleLabels[user.role]}
                   </span>
                 </td>

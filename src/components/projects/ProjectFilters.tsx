@@ -33,7 +33,7 @@ function ProjectFilters({
                 <div>
                     <label
                         htmlFor="project-search"
-                        className="mb-1 block text-sm font-medium text-gray-700"
+                        className="mb-1 block text-sm font-medium text-forest"
                     >
                         Search
                     </label>
@@ -49,14 +49,14 @@ function ProjectFilters({
                             })
                         }
                         placeholder="Search projects..."
-                        className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                        className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sage focus:ring-2 focus:ring-sage-mist"
                     />
                 </div>
 
                 <div>
                     <label
                         htmlFor="project-status-filter"
-                        className="mb-1 block text-sm font-medium text-gray-700"
+                        className="mb-1 block text-sm font-medium text-forest"
                     >
                         Status
                     </label>
@@ -71,7 +71,7 @@ function ProjectFilters({
                                     event.target.value as ProjectStatus | '',
                             })
                         }
-                        className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                        className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sage focus:ring-2 focus:ring-sage-mist"
                     >
                         <option value="">All statuses</option>
                         <option value="PLANNING">Planning</option>
@@ -88,7 +88,7 @@ function ProjectFilters({
                 <div>
                     <label
                         htmlFor="project-client-filter"
-                        className="mb-1 block text-sm font-medium text-gray-700"
+                        className="mb-1 block text-sm font-medium text-forest"
                     >
                         Client
                     </label>
@@ -102,7 +102,7 @@ function ProjectFilters({
                                 clientId: event.target.value,
                             })
                         }
-                        className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+                        className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sage focus:ring-2 focus:ring-sage-mist"
                     >
                         <option value="">All clients</option>
 
@@ -128,7 +128,7 @@ function ProjectFilters({
                             })
                         }
                         disabled={!hasActiveFilters}
-                        className="w-full rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 md:w-auto"
+                        className="w-full rounded-lg border px-4 py-2 text-sm font-medium text-forest transition hover:bg-ivory disabled:cursor-not-allowed disabled:opacity-50 md:w-auto"
                     >
                         Clear
                     </button>

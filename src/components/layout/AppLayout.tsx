@@ -15,7 +15,7 @@ function AppLayout() {
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex min-h-screen bg-ivory">
             <Sidebar 
                 isOpen={isSidebarOpen}
                 onNavigate={handleNavigate}

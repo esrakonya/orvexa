@@ -25,11 +25,11 @@ function DashboardPage() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-2xl font-semibold text-gray-900">
+                <h1 className="text-2xl font-semibold text-forest">
                     Dashboard
                 </h1>
 
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-sage">
                     Get an overview of your workspace and ongoing work.
                 </p>
             </div>
@@ -39,7 +39,7 @@ function DashboardPage() {
                     label="Active Projects"
                     value={kpis.activeProjects}
                     icon={FolderKanban}
-                    iconClassName="text-primary-600"
+                    iconClassName="text-forest"
                     iconBackgroundClassName="bg-primary-50"
                 />
 

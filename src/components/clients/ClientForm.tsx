@@ -14,7 +14,8 @@ interface ClientFormData {
 interface ClientFormProps {
     initialData?: ClientFormData
     submitLabel?: string
-    onSubmit: (data: ClientFormData) => void
+    isSubmitting?: boolean
+    onSubmit: (data: ClientFormData) => void | Promise<void>
     onCancel: () => void
 }
 
@@ -27,6 +28,7 @@ interface FormErrors {
 function ClientForm({
     initialData,
     submitLabel = 'Add Client',
+    isSubmitting = false,
     onSubmit,
     onCancel,
 }: ClientFormProps) {
@@ -102,7 +104,7 @@ function ClientForm({
         `w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:ring-2 ${
             hasError
                 ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-100'
-                : 'focus:border-primary-500 focus:ring-primary-100'
+                : 'focus:border-sage focus:ring-sage-mist'
         }`
 
     return (
@@ -114,7 +116,7 @@ function ClientForm({
                 <div>
                     <label
                         htmlFor="name"
-                        className="mb-1.5 block text-sm font-medium text-gray-700"
+                        className="mb-1.5 block text-sm font-medium text-forest"
                     >
                         Client Name
                     </label>
@@ -148,7 +150,7 @@ function ClientForm({
                 <div>
                     <label
                         htmlFor="email"
-                        className="mb-1.5 block text-sm font-medium text-gray-700"
+                        className="mb-1.5 block text-sm font-medium text-forest"
                     >
                         Email
                     </label>
@@ -182,7 +184,7 @@ function ClientForm({
                 <div>
                     <label
                         htmlFor="phone"
-                        className="mb-1.5 block text-sm font-medium text-gray-700"
+                        className="mb-1.5 block text-sm font-medium text-forest"
                     >
                         Phone
                     </label>
@@ -202,7 +204,7 @@ function ClientForm({
                 <div>
                     <label
                         htmlFor="industry"
-                        className="mb-1.5 block text-sm font-medium text-gray-700"
+                        className="mb-1.5 block text-sm font-medium text-forest"
                     >
                         Industry
                     </label>
@@ -235,34 +237,37 @@ function ClientForm({
                     )}
                 </div>
 
-                <div>
-                    <label
-                        htmlFor="status"
-                        className="mb-1.5 block text-sm font-medium text-gray-700"
-                    >
-                        Status
-                    </label>
 
-                    <select
-                        id="status"
-                        value={formData.status}
-                        onChange={(event) =>
-                            handleChange(
-                                'status',
-                                event.target.value as ClientStatus,
-                            )
-                        }
-                        className={getInputClassName()}
-                    >
-                        <option value="ACTIVE">Active</option>
-                        <option value="INACTIVE">Inactive</option>
-                    </select>
-                </div>
+                {initialData && (
+                    <div>
+                        <label
+                            htmlFor="status"
+                            className="mb-1 block text-sm font-medium text-forest"
+                        >
+                            Status
+                        </label>
+
+                        <select
+                            id="status"
+                            value={formData.status}
+                            onChange={(event) =>
+                                handleChange(
+                                    'status',
+                                    event.target.value as ClientStatus,
+                                )
+                            }
+                            className={getInputClassName()}
+                        >
+                            <option value="ACTIVE">Active</option>
+                            <option value="INACTIVE">Inactive</option>
+                        </select>
+                    </div>
+                )}
 
                 <div className="md:col-span-2">
                     <label
                         htmlFor="notes"
-                        className="mb-1.5 block text-sm font-medium text-gray-700"
+                        className="mb-1.5 block text-sm font-medium text-forest"
                     >
                         Notes
                     </label>
@@ -282,17 +287,19 @@ function ClientForm({
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button
                     type="button"
+                    disabled={isSubmitting}
                     onClick={onCancel}
-                    className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                    className="rounded-lg border px-4 py-2 text-sm font-medium text-forest transition hover:bg-ivory"
                 >
                     Cancel
                 </button>
 
                 <button
                     type="submit"
-                    className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700"
+                    disabled={isSubmitting}
+                    className="rounded-lg bg-forest px-4 py-2 text-sm font-medium text-white transition hover:bg-[#10352c]"
                 >
-                    {submitLabel}
+                    {isSubmitting ? 'Saving...' : submitLabel}
                 </button>
             </div>
         </form>

@@ -38,11 +38,11 @@ function ActivityFeed({
     if (activities.length === 0) {
       return (
         <section className="rounded-xl border bg-white p-8 text-center shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-forest">
             No activity found
           </h2>
   
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-sage">
             There are no activities matching the selected filter.
           </p>
         </section>
@@ -54,7 +54,7 @@ function ActivityFeed({
         <div className="divide-y">
           {activities.map((activity) => {
             const user = users.find(
-              (candidate) => candidate.id === activity.userId,
+              (candidate) => candidate.id === activity.actorMembershipId,
             )
   
             return (
@@ -62,15 +62,15 @@ function ActivityFeed({
                 key={activity.id}
                 className="flex gap-4 p-5"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                  <span className="text-sm font-medium text-gray-700">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sage-mist">
+                  <span className="text-sm font-medium text-forest">
                     {user?.name.charAt(0).toUpperCase() ?? '?'}
                   </span>
                 </div>
   
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-sm text-gray-900">
+                    <p className="text-sm text-forest">
                       <span className="font-semibold">
                         {user?.name ?? 'Unknown user'}
                       </span>{' '}
@@ -79,18 +79,18 @@ function ActivityFeed({
   
                     <time
                       dateTime={activity.createdAt}
-                      className="shrink-0 text-xs text-gray-500"
+                      className="shrink-0 text-xs text-sage"
                     >
                       {formatActivityDate(activity.createdAt)}
                     </time>
                   </div>
   
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+                    <span className="rounded-full bg-sage-mist px-2.5 py-1 text-xs font-medium text-forest">
                       {activityTypeLabels[activity.type]}
                     </span>
   
-                    <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+                    <span className="rounded-full bg-sage-mist px-2.5 py-1 text-xs font-medium text-forest">
                       {entityTypeLabels[activity.entityType]}
                     </span>
                   </div>

@@ -1,16 +1,9 @@
+import { apiRequest } from '../api/apiClient'
 import type { User } from '../interfaces/User'
-import {
-  getData,
-} from '../repositories/localStorage/localStorageRepository'
+import type { WorkspaceMember } from '../interfaces/WorkspaceMember'
 
-export function getAllUsers(): User[] {
-  return getData().users
-}
+const WORKSPACE_MEMBERS_ENDPOINT = '/api/workspace-members'
 
-export function getUserById(
-  userId: string,
-): User | undefined {
-  return getData().users.find(
-    (user) => user.id === userId,
-  )
+export function getAllUsers(): Promise<WorkspaceMember[]> {
+  return apiRequest<User[]>(WORKSPACE_MEMBERS_ENDPOINT)
 }

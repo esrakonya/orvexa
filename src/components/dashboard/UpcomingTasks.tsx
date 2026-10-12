@@ -28,18 +28,18 @@ function UpcomingTasks({
         <section className="rounded-xl border bg-white shadow-sm">
             <div className="flex items-start justify-between gap-4 border-b p-5">
                 <div>
-                    <h2 className="text-lg font-semibold text-gray-900">
+                    <h2 className="text-lg font-semibold text-forest">
                         Upcoming Tasks
                     </h2>
 
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-sage">
                         Tasks that need attention next.
                     </p>
                 </div>
 
                 <Link
                     to="/tasks"
-                    className="shrink-0 text-sm font-medium text-primary-600 hover:text-primary-700"
+                    className="shrink-0 text-sm font-medium text-forest hover:text-sage"
                 >
                     View all
                 </Link>
@@ -55,11 +55,11 @@ function UpcomingTasks({
                             className="flex items-center justify-between gap-4 p-5"
                         >
                             <div className="min-w-0">
-                                <p className="truncate font-medium text-gray-900">
+                                <p className="truncate font-medium text-forest">
                                     {task.title}
                                 </p>
 
-                                <p className="mt-1 truncate text-sm text-gray-500">
+                                <p className="mt-1 truncate text-sm text-sage">
                                     {project?.name ?? 'Unknown project'}
                                     {' · '}
                                     {assignee?.name ?? 'Unassigned'}
@@ -70,7 +70,7 @@ function UpcomingTasks({
                                 <p
                                     className={`text-sm font-medium ${overdue
                                             ? 'text-danger-600'
-                                            : 'text-gray-700'
+                                            : 'text-forest'
                                         }`}
                                 >
                                     {formatDueDate(task.dueDate)}

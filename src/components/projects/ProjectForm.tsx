@@ -113,7 +113,7 @@ function ProjectForm({
         <div>
           <label
             htmlFor="clientId"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-forest"
           >
             Client
           </label>
@@ -131,7 +131,7 @@ function ProjectForm({
             className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:ring-2 ${
                 errors.clientId
                     ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-100'
-                    : 'focus:border-primary-500 focus:ring-primary-100'
+                    : 'focus:border-sage focus:ring-sage-mist'
             }`}
             required
           >
@@ -156,7 +156,7 @@ function ProjectForm({
         <div>
           <label
             htmlFor="name"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-forest"
           >
             Project Name
           </label>
@@ -173,7 +173,7 @@ function ProjectForm({
             className={`w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-2 ${
                 errors.name
                     ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-100'
-                    : 'focus:border-primary-500 focus:ring-primary-100'
+                    : 'focus:border-sage focus:ring-sage-mist'
             }`}
             placeholder="Enter project name"
             required
@@ -191,7 +191,7 @@ function ProjectForm({
         <div className="md:col-span-2">
           <label
             htmlFor="description"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-forest"
           >
             Description
           </label>
@@ -205,7 +205,7 @@ function ProjectForm({
                 event.target.value,
               )
             }
-            className="min-h-24 w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+            className="min-h-24 w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sage focus:ring-2 focus:ring-sage-mist"
             placeholder="Describe the project"
           />
         </div>
@@ -213,7 +213,7 @@ function ProjectForm({
         <div>
           <label
             htmlFor="status"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-forest"
           >
             Status
           </label>
@@ -227,7 +227,7 @@ function ProjectForm({
                 event.target.value as ProjectStatus,
               )
             }
-            className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
+            className="w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sage focus:ring-2 focus:ring-sage-mist"
           >
             <option value="PLANNING">Planning</option>
             <option value="IN_PROGRESS">In Progress</option>
@@ -241,7 +241,7 @@ function ProjectForm({
         <div>
           <label
             htmlFor="startDate"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-forest"
           >
             Start Date
           </label>
@@ -263,7 +263,7 @@ function ProjectForm({
             className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:ring-2 ${
                 errors.startDate
                     ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-100'
-                    : 'focus:border-primary-500 focus:ring-primary-100'
+                    : 'focus:border-sage focus:ring-sage-mist'
             }`}
             required
           />
@@ -280,7 +280,7 @@ function ProjectForm({
         <div>
           <label
             htmlFor="dueDate"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-1 block text-sm font-medium text-forest"
           >
             Due Date
           </label>
@@ -298,7 +298,7 @@ function ProjectForm({
             className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:ring-2 ${
                 errors.dueDate
                     ? 'border-danger-500 focus:border-danger-500 focus:ring-danger-100'
-                    : 'focus:border-primary-500 focus:ring-primary-100'
+                    : 'focus:border-sage focus:ring-sage-mist'
             }`}
             required
           />
@@ -317,14 +317,14 @@ function ProjectForm({
         <button
           type="button"
           onClick={onCancel}
-          className="w-full rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 sm:w-auto"
+          className="w-full rounded-lg border px-4 py-2 text-sm font-medium text-forest hover:bg-ivory sm:w-auto"
         >
           Cancel
         </button>
 
         <button
           type="submit"
-          className="w-full rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 sm:w-auto"
+          className="w-full rounded-lg bg-forest px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-sage focus:ring-offset-2 sm:w-auto"
         >
           {submitLabel}
         </button>

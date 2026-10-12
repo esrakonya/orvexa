@@ -1,75 +1,87 @@
-# React + TypeScript + Vite
+# Orvexa
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Orvexa, ekiplerin projelerini, görevlerini ve üyelerini tek yerden yönetmesini sağlayan bir proje yönetim panelidir. React ile geliştirilen arayüz, Spring Boot tabanlı bir REST API ile çalışır.
 
-Currently, two official plugins are available:
+**Canlı uygulama:** _yakında eklenecek_
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Ekran Görüntüleri
 
-## React Compiler
+| Dashboard | Projects |
+| --- | --- |
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Projects](docs/screenshots/projects.png) |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Tasks | Team |
+| --- | --- |
+| ![Tasks](docs/screenshots/tasks.png) | ![Team](docs/screenshots/team.png) |
 
-## Expanding the ESLint configuration
+## Özellikler
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Kayıt olma, giriş yapma ve oturum yönetimi
+- Dashboard: proje ilerlemesi, görev durumu özeti, yaklaşan görevler ve son aktiviteler
+- Projeler: ekleme, listeleme, güncelleme, silme ve filtreleme
+- Görevler: ekleme, listeleme, güncelleme, silme ve filtreleme
+- Ekip: çalışma alanı üyeleri ve e-posta daveti ile ekibe katılım
+- Müşteriler ve aktivite akışı
+- Ayarlar sayfası
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Kullanılan Teknolojiler
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+**Frontend:** React 19, TypeScript, Vite, Tailwind CSS 4, React Router, Recharts, Lucide React
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**Backend:** Java 21, Spring Boot 4, Spring Security (oturum + CSRF koruması), Spring Data JPA, Flyway
 
+**Veritabanı:** PostgreSQL
+
+## Proje Yapısı
+
+```text
+orvexa/
+├── src/              # React uygulaması (components, pages, interfaces, services, hooks)
+├── backend/          # Spring Boot API (controller, service, repository, entity, dto)
+├── public/
+└── docs/screenshots/
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## Yerelde Çalıştırma
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Gereksinimler: Node.js, Java 21, Docker
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. `backend/.env` dosyasını oluştur ve şu değerleri yaz: `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`
+2. Veritabanını başlat:
 
+```bash
+   cd backend
+   docker compose up -d
 ```
+
+3. Backend'i başlat (tablolar Flyway ile otomatik kurulur):
+
+```bash
+   set -a; source .env; set +a
+   ./mvnw spring-boot:run
+```
+
+4. Frontend'i başlat (ayrı bir terminalde, proje kök klasöründe):
+
+```bash
+   npm install
+   npm run dev
+```
+
+Arayüz `http://localhost:5173` adresinde açılır. Vite, `/api` isteklerini `http://localhost:8080` adresindeki backend'e yönlendirir.
+
+## Test ve Kontroller
+
+```bash
+npm run lint
+npm run build
+cd backend && ./test.sh
+```
+
+## Dağıtım
+
+- Frontend: Netlify
+- Backend: Docker (`backend/Dockerfile`), production ayarları `application-prod.properties` içinde
+- Veritabanı: yönetilen PostgreSQL
+
+Production ortamında `DB_URL`, `DB_USERNAME` ve `DB_PASSWORD` değişkenleri tanımlanmalıdır.
