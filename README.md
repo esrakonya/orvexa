@@ -3,7 +3,6 @@
 Orvexa is a project management web application designed to help teams manage projects, tasks, clients, and team members in one workspace. It consists of a React and TypeScript frontend and a Spring Boot REST API.
 
 **Live Demo:** [https://orvexa-gsz3.onrender.com](https://orvexa-gsz3.onrender.com)
-**Source Code:** [https://github.com/esrakonya/orvexa](https://github.com/esrakonya/orvexa)
 
 ## Screenshots
 
