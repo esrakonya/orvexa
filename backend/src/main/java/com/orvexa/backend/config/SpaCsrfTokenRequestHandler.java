@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
-import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 
 import java.util.function.Supplier;
@@ -22,6 +21,8 @@ public final class SpaCsrfTokenRequestHandler
             Supplier<CsrfToken> csrfToken
     ) {
         this.xor.handle(request, response, csrfToken);
+
+        // CSRF token'ının tembel (deferred) üretimini tetikler.
         csrfToken.get();
     }
 
