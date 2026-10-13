@@ -1,8 +1,9 @@
 # Orvexa
 
-Orvexa, ekiplerin projelerini, görevlerini, müşterilerini ve ekip üyelerini tek bir çalışma alanında yönetmelerine yardımcı olmak için tasarlanmış bir proje yönetimi web uygulamasıdır. React ve TypeScript ile geliştirilmiş bir ön yüz ile Spring Boot tabanlı bir REST API'den oluşur.
-
 [English](README.md) | [Türkçe](README.tr.md)
+
+
+Orvexa, ekiplerin projelerini, görevlerini, müşterilerini ve ekip üyelerini tek bir çalışma alanında yönetmelerine yardımcı olmak için tasarlanmış bir proje yönetimi web uygulamasıdır. React ve TypeScript ile geliştirilmiş bir ön yüz ile Spring Boot tabanlı bir REST API'den oluşur.
 
 **Canlı Demo:** [https://orvexa-gsz3.onrender.com](https://orvexa-gsz3.onrender.com)
 
