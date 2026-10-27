@@ -5,10 +5,6 @@ import TeamFilters, {
 import TeamMemberList from "../components/team/TeamMemberList"
 import type { User } from "../interfaces/User"
 import { getAllUsers } from "../services/userService"
-import {
-    createWorkspaceInvitation,
-    type WorkspaceInvitationRole,
-} from "../services/workspaceInvitationService"
 
 function TeamPage() {
     const [filters, setFilters] = useState<TeamFiltersState>({
@@ -19,12 +15,6 @@ function TeamPage() {
     const [users, setUsers] = useState<User[]>([])
     const [isLoadingUsers, setIsLoadingUsers] = useState(true)
     const [usersError, setUsersError] = useState<string | null>(null)
-    const [inviteEmail, setInviteEmail] = useState("")
-    const [inviteRole, setInviteRole] = useState<WorkspaceInvitationRole>("MEMBER")
-    const [isCreatingInvitation, setIsCreatingInvitation] = useState(false)
-    const [invitationError, setInvitationError] = useState<string | null>(null)
-    const [invitationLink, setInvitationLink] = useState<string | null>(null)
-    const [invitationSuccess, setInvitationSuccess] = useState<string | null>(null)
 
     useEffect(() => {
         let isMounted = true
@@ -85,7 +75,7 @@ function TeamPage() {
                 </p>
             </div>
 
-
+            {/* Team Invitation Section */}
             <section className="rounded-xl border border-sage-mist bg-white p-5">
                 <h2 className="text-lg font-semibold text-forest">
                     Invite a team member
@@ -95,134 +85,103 @@ function TeamPage() {
                     Create an invitation link for someone to join your workspace.
                 </p>
 
-                <form
-                    className="mt-4 grid gap-4 sm:grid-cols-3"
-                    onSubmit={async (event) => {
-                        event.preventDefault()
-                        setIsCreatingInvitation(true)
-                        setInvitationError(null)
-                        setInvitationSuccess(null)
-                        setInvitationLink(null)
-
-                        try {
-                            const invitation = await createWorkspaceInvitation({
-                                email: inviteEmail.trim(),
-                                role: inviteRole,
-                            })
-
-                            const link = new URL(
-                                "/accept-invitation",
-                                window.location.origin,
-                            )
-                            link.searchParams.set("token", invitation.token)
-
-                            setInvitationLink(link.toString())
-                            setInvitationSuccess(
-                                `Invitation created for ${invitation.email}.`,
-                            )
-                            setInviteEmail("")
-                        } catch (error: unknown) {
-                            setInvitationError(
-                                error instanceof Error
-                                    ? error.message
-                                    : "Could not create the invitation.",
-                            )
-                        } finally {
-                            setIsCreatingInvitation(false)
-                        }
-                    }}
+                {/* Maintenance Notice */}
+                <div
+                    role="status"
+                    className="mt-5 rounded-lg border border-blue-200 bg-blue-50 p-4"
                 >
-                    <div className="sm:col-span-1">
-                        <label
-                            htmlFor="invite-email"
-                            className="mb-1 block text-sm font-medium text-forest"
-                        >
-                            Email address
-                        </label>
-                        <input
-                            id="invite-email"
-                            type="email"
-                            required
-                            maxLength={255}
-                            value={inviteEmail}
-                            onChange={(event) => setInviteEmail(event.target.value)}
-                            placeholder="colleague@example.com"
-                            className="w-full rounded-lg border border-sage-mist px-3 py-2 text-sm outline-none focus:border-sage focus:ring-2 focus:ring-sage-mist"
-                        />
+                    <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 text-blue-600">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                            >
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 16v-4" />
+                                <path d="M12 8h.01" />
+                            </svg>
+                        </div>
+
+                        <div>
+                            <h3 className="text-sm font-semibold text-blue-900">
+                                Feature Update in Progress
+                            </h3>
+
+                            <p className="mt-1 text-sm leading-relaxed text-blue-800">
+                                Team member invitations are currently being
+                                improved. This feature will be available again
+                                soon. Thank you for your patience.
+                            </p>
+                        </div>
                     </div>
+                </div>
 
-                    <div className="sm:col-span-1">
-                        <label
-                            htmlFor="invite-role"
-                            className="mb-1 block text-sm font-medium text-forest"
-                        >
-                            Role
-                        </label>
-                        <select
-                            id="invite-role"
-                            value={inviteRole}
-                            onChange={(event) =>
-                                setInviteRole(event.target.value as WorkspaceInvitationRole)
-                            }
-                            className="w-full rounded-lg border border-sage-mist bg-white px-3 py-2 text-sm outline-none focus:border-sage focus:ring-2 focus:ring-sage-mist"
-                        >
-                            <option value="MEMBER">Member</option>
-                            <option value="PROJECT_MANAGER">Project Manager</option>
-                            <option value="ADMIN">Admin</option>
-                        </select>
+                {/* Temporarily Disabled Invitation Form */}
+                <fieldset disabled className="mt-5 opacity-50">
+                    <div className="grid gap-4 sm:grid-cols-3">
+                        <div className="sm:col-span-1">
+                            <label
+                                htmlFor="invite-email"
+                                className="mb-1 block text-sm font-medium text-forest"
+                            >
+                                Email address
+                            </label>
+
+                            <input
+                                id="invite-email"
+                                type="email"
+                                placeholder="colleague@example.com"
+                                className="w-full rounded-lg border border-sage-mist bg-gray-50 px-3 py-2 text-sm cursor-not-allowed"
+                            />
+                        </div>
+
+                        <div className="sm:col-span-1">
+                            <label
+                                htmlFor="invite-role"
+                                className="mb-1 block text-sm font-medium text-forest"
+                            >
+                                Role
+                            </label>
+
+                            <select
+                                id="invite-role"
+                                defaultValue="MEMBER"
+                                className="w-full rounded-lg border border-sage-mist bg-gray-50 px-3 py-2 text-sm cursor-not-allowed"
+                            >
+                                <option value="MEMBER">Member</option>
+                                <option value="PROJECT_MANAGER">
+                                    Project Manager
+                                </option>
+                                <option value="ADMIN">Admin</option>
+                            </select>
+                        </div>
+
+                        <div className="flex items-end">
+                            <button
+                                type="button"
+                                disabled
+                                className="w-full cursor-not-allowed rounded-lg bg-forest px-4 py-2 text-sm font-medium text-white"
+                            >
+                                Create invitation
+                            </button>
+                        </div>
                     </div>
+                </fieldset>
 
-                    <div className="flex items-end">
-                        <button
-                            type="submit"
-                            disabled={isCreatingInvitation}
-                            className="w-full rounded-lg bg-forest px-4 py-2 text-sm font-medium text-white hover:bg-[#10352c] disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                            {isCreatingInvitation ? "Creating..." : "Create invitation"}
-                        </button>
-                    </div>
-                </form>
-
-                {invitationError && (
-                    <p role="alert" className="mt-4 text-sm text-red-600">
-                        {invitationError}
-                    </p>
-                )}
-
-                {invitationSuccess && (
-                    <p role="status" className="mt-4 text-sm text-green-700">
-                        {invitationSuccess}
-                    </p>
-                )}
-
-                {invitationLink && (
-                    <div className="mt-4 rounded-lg border border-sage-mist bg-ivory p-4">
-                        <p className="text-sm font-medium text-forest">
-                            Invitation link
-                        </p>
-
-                        <p className="mt-1 break-all text-sm text-sage">
-                            {invitationLink}
-                        </p>
-
-                        <button
-                            type="button"
-                            onClick={() => {
-                                void navigator.clipboard.writeText(invitationLink)
-                            }}
-                            className="mt-3 rounded-lg border border-sage-mist bg-white px-3 py-2 text-sm font-medium text-forest hover:bg-sage-mist"
-                        >
-                            Copy invitation link
-                        </button>
-
-                        <p className="mt-2 text-xs text-sage">
-                            This link contains a private invitation token. Share it only
-                            with the intended recipient.
-                        </p>
-                    </div>
-                )}
+                <p className="mt-3 text-xs text-sage">
+                    Invitation functionality is temporarily unavailable.
+                </p>
             </section>
 
+            {/* Team Members */}
             {isLoadingUsers && (
                 <p className="text-sm text-sage">
                     Loading team members...
