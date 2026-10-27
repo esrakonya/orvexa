@@ -21,20 +21,11 @@ interface GuestRouteProps {
     children: ReactNode
 }
 
+
 function GuestRoute({ children }: GuestRouteProps) {
     const { isAuthenticated, isLoading } = useAuth()
 
-    if (isLoading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-ivory">
-                <p className="text-sm text-sage">
-                    Oturum kontrol ediliyor…
-                </p>
-            </div>
-        )
-    }
-
-    if (isAuthenticated) {
+    if (!isLoading && isAuthenticated) {
         return <Navigate to="/dashboard" replace />
     }
 
