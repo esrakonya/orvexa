@@ -21,7 +21,6 @@ interface GuestRouteProps {
     children: ReactNode
 }
 
-
 function GuestRoute({ children }: GuestRouteProps) {
     const { isAuthenticated, isLoading } = useAuth()
 
@@ -35,6 +34,11 @@ function GuestRoute({ children }: GuestRouteProps) {
 function AppRoutes() {
     return (
         <Routes>
+            <Route
+                path="/"
+                element={<Navigate to="/login" replace />}
+            />
+
             <Route
                 path="/login"
                 element={
@@ -60,11 +64,6 @@ function AppRoutes() {
 
             <Route element={<ProtectedRoute />}>
                 <Route element={<AppLayout />}>
-                    <Route
-                        path="/"
-                        element={<Navigate to="/dashboard" replace />}
-                    />
-
                     <Route path="/dashboard" element={<DashboardPage />} />
 
                     <Route path="/clients" element={<ClientsPage />} />
