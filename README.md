@@ -33,7 +33,7 @@ More screenshots are available in [`docs/screenshots`](docs/screenshots).
 - **Project management:** create, view, update, delete, and filter projects
 - **Task management:** create, view, update, delete, and filter tasks
 - **Client management:** manage client information and related details
-- **Team management:** workspace membership and team invitation interface
+- **Team management:** workspace membership and team invitation interface. The team invitation and member-addition UI is currently disabled while the feature is under development; related backend endpoints are present, but the end-to-end flow is not yet available through the UI.
 - **Activity feed:** view recent activity
 - **Settings:** workspace settings interface
 
