@@ -33,7 +33,7 @@ Diğer ekran görüntüleri [`docs/screenshots`](docs/screenshots) dizininde bul
 - **Proje yönetimi:** proje oluşturma, görüntüleme, güncelleme, silme ve filtreleme
 - **Görev yönetimi:** görev oluşturma, görüntüleme, güncelleme, silme ve filtreleme
 - **Müşteri yönetimi:** müşteri bilgilerini ve ilgili ayrıntıları yönetme
-- **Ekip yönetimi:** çalışma alanı üyeliği ve ekip davet arayüzü
+- **Ekip yönetimi:** çalışma alanı üyeliği ve ekip davet arayüzü. Ekip davet etme ve üye ekleme arayüzü, özellik geliştirme aşamasında olduğu için şu anda devre dışıdır. İlgili arka uç endpoint'leri mevcut olsa da uçtan uca akış henüz arayüz üzerinden kullanılamamaktadır.
 - **Etkinlik akışı:** son etkinlikleri görüntüleme
 - **Ayarlar:** çalışma alanı ayarları arayüzü
 
