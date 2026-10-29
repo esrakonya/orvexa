@@ -35,7 +35,7 @@ Diğer ekran görüntüleri [`docs/screenshots`](docs/screenshots) dizininde bul
 - **Müşteri yönetimi:** müşteri bilgilerini ve ilgili ayrıntıları yönetme
 - **Ekip yönetimi:** çalışma alanı üyeliği ve ekip davet arayüzü. Ekip davet etme ve üye ekleme arayüzü, özellik geliştirme aşamasında olduğu için şu anda devre dışıdır. İlgili arka uç endpoint'leri mevcut olsa da uçtan uca akış henüz arayüz üzerinden kullanılamamaktadır.
 - **Etkinlik akışı:** son etkinlikleri görüntüleme
-- **Ayarlar:** çalışma alanı ayarları arayüzü
+- **Ayarlar:** çalışma alanı adını ve sektörünü güncelleme; bu ayarlar tarayıcıda yerel olarak saklanır ve arka uç sistemine kaydedilmez.
 
 Orvexa'nın geliştirilmesine aktif olarak devam edilmektedir. Canlı uygulamadaki özelliklerin kullanılabilirliği, arka uç servisinin ve veritabanının doğru yapılandırılmış ve erişilebilir olmasına bağlıdır.
 
