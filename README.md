@@ -35,7 +35,7 @@ More screenshots are available in [`docs/screenshots`](docs/screenshots).
 - **Client management:** manage client information and related details
 - **Team management:** workspace membership and team invitation interface. The team invitation and member-addition UI is currently disabled while the feature is under development; related backend endpoints are present, but the end-to-end flow is not yet available through the UI.
 - **Activity feed:** view recent activity
-- **Settings:** workspace settings interface
+- **Settings:** update workspace name and industry; these settings are stored locally in the browser and are not persisted to the backend.
 
 Orvexa is under active development. Feature availability in the deployed application depends on the backend and database being configured and reachable.
 
